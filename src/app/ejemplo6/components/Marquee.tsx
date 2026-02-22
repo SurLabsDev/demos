@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import './Marquee.css';
 
 export default function Marquee() {
-    const words = ["BUBBLE TEA", "MYSTERY BOX", "SABORES AUTÉNTICOS", "CHA HAUS CLUB"];
+    const words = ["BUBBLE TEA", "MYSTERY BOX", "SABORES AUTÉNTICOS", "BEBIDAS FRÍAS"];
     const repeatedWords = Array(10).fill(words).flat();
 
     return (

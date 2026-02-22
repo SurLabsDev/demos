@@ -39,7 +39,7 @@ export default function MysteryBoxSection() {
                     }}
                 >
                     <div className="mystery-backdrop"></div>
-                    <img src="https://images.unsplash.com/photo-1557006021-b85faa2bc5e2?auto=format&fit=crop&q=80&w=400" alt="Mystery Box" className="mystery-img" style={{ borderRadius: '20px', objectFit: 'cover' }} />
+                    <img src="/images/Vaso_misterioso.webp" alt="Mystery Box" className="mystery-img" />
 
                     {/* Floating decorative elements */}
                     <motion.div className="decoration deco-1" animate={{ y: [0, -20, 0] }} transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}>✨</motion.div>

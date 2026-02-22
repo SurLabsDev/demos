@@ -2,12 +2,12 @@ import { motion } from 'framer-motion';
 import './MenuSection.css';
 
 const menuItems = [
-    { id: 1, name: 'Maracuya Hibiscus', desc: 'Te verde de jazmin con maracuya y flor de hibisco', image: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&q=80&w=400', color: '#FFB6C1' },
-    { id: 2, name: 'Pink Lychee', desc: 'Te oolong con lychee, toques de rosa y cold foam', image: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&q=80&w=400', color: '#FFC0CB' },
-    { id: 3, name: 'Durazno Oolong', desc: 'Te oolong efervescente con durazno', image: 'https://images.unsplash.com/photo-1499638673689-79a0b5115d87?auto=format&fit=crop&q=80&w=400', color: '#FFDAB9' },
-    { id: 4, name: 'Purple Lemonade', desc: 'Limonada con te de flor de clitoria', image: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&q=80&w=400', color: '#DDA0DD' },
-    { id: 5, name: 'Cloud Coco', desc: 'Te de flor de clitoria con agua de coco y cold foam azul', image: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?auto=format&fit=crop&q=80&w=400', color: '#87CEEB' },
-    { id: 6, name: 'Crisantemo Zen', desc: 'Te verde de jazmin con limon, chia, crisantemo y bayas de goji', image: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&q=80&w=400', color: '#FFFACD' },
+    { id: 1, name: 'Maracuya Hibiscus', desc: 'Te verde de jazmin con maracuya y flor de hibisco', image: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&q=80&w=400', color: '#FCD34D' }, // Ambar/Yellow
+    { id: 2, name: 'Pink Lychee', desc: 'Te oolong con lychee, toques de rosa y cold foam', image: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&q=80&w=400', color: '#A0D2A1' }, // Green matcha
+    { id: 3, name: 'Durazno Oolong', desc: 'Te oolong efervescente con durazno', image: 'https://images.unsplash.com/photo-1499638673689-79a0b5115d87?auto=format&fit=crop&q=80&w=400', color: '#FCA5A5' }, // Red/Pink
+    { id: 4, name: 'Purple Lemonade', desc: 'Limonada con te de flor de clitoria', image: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&q=80&w=400', color: '#FBBF24' }, // Ambar/Yellow again
+    { id: 5, name: 'Cloud Coco', desc: 'Te de flor de clitoria con agua de coco y cold foam azul', image: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?auto=format&fit=crop&q=80&w=400', color: '#38BDF8' }, // Light Blue
+    { id: 6, name: 'Crisantemo Zen', desc: 'Te verde de jazmin con limon, chia, crisantemo y bayas de goji', image: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&q=80&w=400', color: '#FCA5A5' }, // Pink/Red again
 ];
 
 export default function MenuSection() {

@@ -5,13 +5,14 @@
 }
 
 .ejemplo6-wrapper .footer-card {
-    background-color: #E2FF66;
-    /* Neon yellow-green */
+    background-color: var(--text-dark);
+    /* Dark sleek background */
+    color: var(--white);
     border-radius: 40px;
     padding: 4rem;
     text-align: center;
-    border: 6px solid var(--text-dark);
-    box-shadow: 15px 15px 0px 0px var(--text-dark);
+    border: 3px solid var(--accent-purple);
+    box-shadow: 10px 10px 0px 0px var(--accent-purple);
     max-width: 900px;
     margin: 0 auto;
 }
@@ -20,11 +21,12 @@
     font-size: 2.5rem;
     font-weight: 900;
     margin-bottom: 1rem;
+    color: var(--white);
 }
 
 .ejemplo6-wrapper .footer-info p {
     font-size: 1.25rem;
-    color: #666;
+    color: #A0A0A0;
     margin-bottom: 2.5rem;
 }
 
