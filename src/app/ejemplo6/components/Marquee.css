@@ -1,0 +1,36 @@
+.ejemplo6-wrapper .marquee-container {
+    width: 100vw;
+    background-color: var(--text-dark);
+    color: rgb(226, 255, 102);
+    /* Neon Yellow/Green for extreme contrast */
+    overflow: hidden;
+    padding: 1.5rem 0;
+    white-space: nowrap;
+    display: flex;
+    transform: rotate(-2deg) scale(1.05);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    margin-top: -3rem;
+    margin-bottom: 3rem;
+    position: relative;
+    z-index: 10;
+    border-top: 4px solid var(--white);
+    border-bottom: 4px solid var(--white);
+}
+
+.ejemplo6-wrapper .marquee-content {
+    display: flex;
+    gap: 3rem;
+    width: max-content;
+}
+
+.ejemplo6-wrapper .marquee-item {
+    font-size: 2rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+}
+
+.ejemplo6-wrapper .marquee-star {
+    display: inline-block;
+    margin-left: 3rem;
+    color: var(--white);
+}

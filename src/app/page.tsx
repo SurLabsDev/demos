@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Briefcase, ShoppingBag, Palette, Gamepad2, CalendarCheck } from "lucide-react";
+import { Briefcase, ShoppingBag, Palette, Gamepad2, CalendarCheck, Coffee } from "lucide-react";
 
 export default function Home() {
   const demos = [
@@ -32,6 +32,12 @@ export default function Home() {
       title: "Agenda Inteligente",
       description: "Sistema de reservas y calendario optimizado para servicios.",
       icon: <CalendarCheck className="w-5 h-5" />
+    },
+    {
+      href: "/ejemplo6",
+      title: "Tienda Concepto Gastronómico",
+      description: "Landing page interactiva con menú, carrusel y club de beneficios.",
+      icon: <Coffee className="w-5 h-5" />
     }
   ];
 

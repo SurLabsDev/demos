@@ -1,0 +1,83 @@
+.ejemplo6-wrapper .club-section {
+    background-color: #FFB6C1;
+    /* Playful pink background */
+    border-radius: 40px;
+    margin: 4rem 2rem;
+    border: 6px solid var(--text-dark);
+    box-shadow: 15px 15px 0px 0px var(--text-dark);
+}
+
+.ejemplo6-wrapper .club-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4rem;
+    padding: 4rem 3rem;
+}
+
+.ejemplo6-wrapper .club-content {
+    flex: 1;
+}
+
+.ejemplo6-wrapper .club-title {
+    text-align: left;
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    line-height: 1.1;
+    letter-spacing: -1px;
+    text-shadow: 3px 3px 0px var(--white);
+}
+
+.ejemplo6-wrapper .club-content p {
+    font-size: 1.5rem;
+    color: #666;
+    font-weight: 600;
+}
+
+.ejemplo6-wrapper .club-qr-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.ejemplo6-wrapper .qr-container {
+    background-color: var(--accent-purple);
+    padding: 2.5rem;
+    border-radius: 30px;
+    border: 5px solid var(--text-dark);
+    box-shadow: 10px 10px 0px 0px var(--text-dark);
+    transform: rotate(-3deg);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.ejemplo6-wrapper .qr-container:hover {
+    transform: rotate(2deg) scale(1.05);
+    box-shadow: 15px 15px 0px 0px var(--text-dark);
+}
+
+.ejemplo6-wrapper .qr-code {
+    width: 250px;
+    height: 250px;
+    object-fit: contain;
+    background-color: var(--white);
+    padding: 1rem;
+    border-radius: 16px;
+}
+
+@media (max-width: 992px) {
+    .club-container {
+        flex-direction: column;
+        text-align: center;
+        gap: 3rem;
+    }
+
+    .club-title {
+        text-align: center;
+        font-size: 2.5rem;
+    }
+
+    .club-section {
+        margin: 2rem 1rem;
+        border-radius: 20px;
+    }
+}

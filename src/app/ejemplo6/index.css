@@ -1,0 +1,66 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&display=swap');
+
+:root {
+  --primary-bg: #C1B6E4;
+  /* Soft lavender background */
+  --accent-purple: #7B6AA4;
+  --text-dark: #1A1A1A;
+  --white: #FFFFFF;
+  --transition-speed: 0.3s;
+}
+
+.ejemplo6-wrapper .ejemplo6-wrapper {
+  font-family: 'Nunito', sans-serif;
+  background-color: var(--primary-bg);
+  background-image: radial-gradient(var(--accent-purple) 2px, transparent 2px);
+  background-size: 30px 30px;
+  color: var(--text-dark);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.ejemplo6-wrapper .ejemplo6-wrapper a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.ejemplo6-wrapper .ejemplo6-wrapper button {
+  font-family: 'Nunito', sans-serif;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+/* Base Utility Classes */
+.ejemplo6-wrapper .container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.ejemplo6-wrapper .section {
+  padding: 8rem 0;
+}
+
+.ejemplo6-wrapper .title {
+  font-size: 4rem;
+  font-weight: 900;
+  text-align: center;
+  margin-bottom: 4rem;
+  letter-spacing: -1px;
+  color: var(--text-dark);
+  text-transform: uppercase;
+  text-shadow: 4px 4px 0px var(--white), 8px 8px 0px var(--accent-purple);
+}
+
+@media (max-width: 768px) {
+  .title {
+    font-size: 2.5rem;
+  }
+
+  .section {
+    padding: 4rem 0;
+  }
+}
