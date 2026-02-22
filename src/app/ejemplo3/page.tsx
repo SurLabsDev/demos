@@ -17,18 +17,6 @@ export default function CreativeAgencyPage() {
 
     return (
         <div className="min-h-screen bg-[#E5E5E5] text-black font-sans overflow-x-hidden selection:bg-purple-500 selection:text-white">
-            {/* Custom Cursor */}
-            <div
-                className="fixed w-8 h-8 pointer-events-none z-[100] mix-blend-difference hidden md:block"
-                style={{
-                    left: `${mousePos.x}px`,
-                    top: `${mousePos.y}px`,
-                    transform: `translate(-50%, -50%) scale(${isHovering ? 2 : 1})`,
-                    transition: "transform 0.2s ease-out",
-                }}
-            >
-                <div className="w-full h-full bg-white rounded-full" />
-            </div>
 
             {/* Navigation */}
             <nav className="fixed w-full z-50 p-6 mix-blend-difference text-white">

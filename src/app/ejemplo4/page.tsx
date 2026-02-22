@@ -4,12 +4,25 @@ import { useState } from "react";
 import { Gamepad2, Coins, ArrowRight, Heart, HeartPulse, Sparkles, ChevronRight, Zap } from "lucide-react";
 
 const menuItems = [
-    { id: "M1", name: "BURGER 8-BIT", desc: "Doble carne smash, queso cheddar líquido, bacon crujiente.", price: "$14.50", category: "MAIN", sprite: "🍔", power: "HP +50" },
-    { id: "M2", name: "PIZZA PIXEL", desc: "Muzzarella, pepperoni, borde relleno de queso.", price: "$18.00", category: "MAIN", sprite: "🍕", power: "HP +80" },
-    { id: "S1", name: "POCIÓN ROJA", desc: "Refresco de frutos rojos y jengibre espaciado.", price: "$4.50", category: "DRINK", sprite: "🥤", power: "MANA +20" },
-    { id: "S2", name: "POCIÓN AZUL", desc: "Limonada eléctrica con blue curaçao sin alcohol.", price: "$5.00", category: "DRINK", sprite: "🍹", power: "MANA +40" },
-    { id: "D1", name: "1UP CUPCAKE", desc: "Muffin de vainilla con frosting de menta y chispas.", price: "$6.00", category: "SWEET", sprite: "🧁", power: "LIFE +1" },
-    { id: "D2", name: "DONA MÁGICA", desc: "Glaseado rosa con lluvia arcoíris, perfecta para guardar la partida.", price: "$4.00", category: "SWEET", sprite: "🍩", power: "SPEED +10" }
+    // MAIN
+    { id: "M1", name: "BURGER 8-BIT", desc: "Doble carne smash, queso cheddar líquido, bacon crujiente.", price: "$14.50", category: "MAIN", image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=250", power: "HP +50" },
+    { id: "M2", name: "PIZZA PIXEL", desc: "Muzzarella, pepperoni, borde relleno de queso.", price: "$18.00", category: "MAIN", image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&q=80&w=250", power: "HP +80" },
+    { id: "M3", name: "CYBER HOTDOG", desc: "Salchicha premium, cebolla crispy, salsa mayo-sriracha neón.", price: "$11.00", category: "MAIN", image: "https://images.unsplash.com/photo-1590122971295-6baef52026af?auto=format&fit=crop&q=80&w=250", power: "HP +40" },
+    { id: "M4", name: "NEON SUSHI", desc: "Roll de salmón, aguacate, coronado con furikake brillante.", price: "$22.00", category: "MAIN", image: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&q=80&w=250", power: "HP +100" },
+    { id: "M5", name: "TURBO TACOS", desc: "Trío de tacos al pastor con piña asada y cilantro.", price: "$16.00", category: "MAIN", image: "https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?auto=format&fit=crop&q=80&w=250", power: "SPEED +15" },
+    { id: "M6", name: "GLITCH WINGS", desc: "Alitas bañadas en salsa BBQ coreana ultra picante.", price: "$15.50", category: "MAIN", image: "https://images.unsplash.com/photo-1608039829572-78524f79c4c7?auto=format&fit=crop&q=80&w=250", power: "ATK +20" },
+
+    // DRINK
+    { id: "D1", name: "POCIÓN ROJA", desc: "Refresco de frutos rojos y jengibre espaciado.", price: "$4.50", category: "DRINK", image: "https://images.unsplash.com/photo-1587223075055-82e9a937ddff?auto=format&fit=crop&q=80&w=250", power: "MANA +20" },
+    { id: "D2", name: "POCIÓN AZUL", desc: "Limonada eléctrica con blue curaçao sin alcohol.", price: "$5.00", category: "DRINK", image: "https://images.unsplash.com/photo-1544145945-f90425340c7e?auto=format&fit=crop&q=80&w=250", power: "MANA +40" },
+    { id: "D3", name: "ELIXIR VERDE", desc: "Té matcha helado con boba de manzana verde.", price: "$6.50", category: "DRINK", image: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&q=80&w=250", power: "STM +50" },
+    { id: "D4", name: "STEALTH COLA", desc: "Bebida de cola artesanal con toque de vainilla oscura.", price: "$3.50", category: "DRINK", image: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&q=80&w=250", power: "AGI +10" },
+
+    // SWEET
+    { id: "S1", name: "1UP CUPCAKE", desc: "Muffin de vainilla con frosting de menta y chispas.", price: "$6.00", category: "SWEET", image: "https://images.unsplash.com/photo-1587668178277-295251f900ce?auto=format&fit=crop&q=80&w=250", power: "LIFE +1" },
+    { id: "S2", name: "DONA MÁGICA", desc: "Glaseado rosa con lluvia arcoíris, perfecta para guardar la partida.", price: "$4.00", category: "SWEET", image: "https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&q=80&w=250", power: "SPEED +10" },
+    { id: "S3", name: "SAVE ICE CREAM", desc: "Helado de crema americana con sirope de chocolate oscuro.", price: "$5.50", category: "SWEET", image: "https://images.unsplash.com/photo-1532678465554-94846274c297?auto=format&fit=crop&q=80&w=250", power: "DEF +5" },
+    { id: "S4", name: "LEVEL UP WAFFLES", desc: "Waffles belgas con miel de maple tibia y manteca.", price: "$8.00", category: "SWEET", image: "https://images.unsplash.com/photo-1562376552-0d160a2f9fa4?auto=format&fit=crop&q=80&w=250", power: "EXP +100" }
 ];
 
 export default function ArcadeMenu() {
@@ -95,12 +108,12 @@ export default function ArcadeMenu() {
                             <div className="absolute inset-0 bg-[linear-gradient(transparent_50%,rgba(0,0,0,0.2)_50%)] bg-[size:100%_4px] pointer-events-none opacity-50 z-10"></div>
 
                             <div className="p-4 md:p-6 flex gap-4 h-full relative z-20">
-                                {/* 8-bit Sprite Placeholder */}
+                                {/* Image instead of Sprite */}
                                 <div className={`
-                  w-20 h-20 md:w-24 md:h-24 shrink-0 border-2 bg-[#000] flex items-center justify-center text-4xl md:text-5xl
-                  ${selectedItem === item.id ? 'border-yellow-400 bg-yellow-900/30' : 'border-cyan-500 group-hover:border-fuchsia-400 group-hover:animate-bounce bg-cyan-900/20'}
+                  w-20 h-20 md:w-24 md:h-24 shrink-0 border-2 bg-[#000] flex items-center justify-center overflow-hidden
+                  ${selectedItem === item.id ? 'border-yellow-400 shadow-[0_0_10px_#ff0]' : 'border-cyan-500 group-hover:border-fuchsia-400'}
                 `}>
-                                    <span className="drop-shadow-[2px_2px_0_rgba(255,0,255,0.8)]">{item.sprite}</span>
+                                    <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform contrast-125 saturate-150" />
                                 </div>
 
                                 <div className="flex flex-col justify-between w-full h-full">

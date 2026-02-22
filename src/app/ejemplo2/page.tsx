@@ -2,10 +2,10 @@ import { ShoppingBag, Search, Menu, ArrowRight, Heart } from "lucide-react";
 
 export default function EcommercePage() {
     const products = [
-        { id: 1, name: "RELOJ AURA CHRONOGRAPH", price: "$1,250", category: "Relojería", image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=800" },
+        { id: 1, name: "BOLSO TOTE LEATHER", price: "$1,250", category: "Marroquinería", image: "https://images.unsplash.com/photo-1591561954557-26941169b49e?auto=format&fit=crop&q=80&w=800" },
         { id: 2, name: "ESENCIA N° 5", price: "$185", category: "Fragancias", image: "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=800" },
-        { id: 3, name: "BOLSO SEDA MINIMAL", price: "$420", category: "Accesorios", image: "https://images.unsplash.com/photo-1579621970221-72909f187317?auto=format&fit=crop&q=80&w=800" },
-        { id: 4, name: "MALETÍN NOIR LUXE", price: "$890", category: "Marroquinería", image: "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?auto=format&fit=crop&q=80&w=800" },
+        { id: 3, name: "PENDIENTES ORO BLANCO", price: "$420", category: "Joyería", image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=800" },
+        { id: 4, name: "LENTES NOIR LUXE", price: "$890", category: "Accesorios", image: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&q=80&w=800" },
     ];
 
     return (
@@ -52,7 +52,7 @@ export default function EcommercePage() {
                     <div className="w-full md:w-1/2 h-full relative overflow-hidden group">
                         <div className="absolute inset-0 bg-[#EFEFEF] animate-pulse -z-10" />
                         <img
-                            src="https://images.unsplash.com/photo-1618354691438-25af04a51118?auto=format&fit=crop&q=80&w=1200"
+                            src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&q=80&w=1200"
                             alt="Editorial presentation"
                             className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-[2s] ease-out mix-blend-multiply"
                         />
