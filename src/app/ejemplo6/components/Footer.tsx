@@ -22,7 +22,7 @@ export default function Footer() {
                                 <MapPin size={20} /> Mirá cómo llegar
                             </a>
                             <a href="tel:+59891300873" className="footer-btn">
-                                <Phone size={20} /> 091 300 873
+                                <Phone size={20} /> 091 661 552
                             </a>
                             <a href="https://www.instagram.com/SUR*STUDIO.uy/" target="_blank" rel="noreferrer" className="footer-btn">
                                 <Instagram size={20} /> SUR*STUDIO.uy
