@@ -12,6 +12,8 @@ export default function Hero() {
     const [current, setCurrent] = useState(0);
     const [isMobile, setIsMobile] = useState(false);
 
+    const [paused, setPaused] = useState(false);
+
     useEffect(() => {
         const checkMobile = () => setIsMobile(window.innerWidth <= 768);
         checkMobile();
@@ -19,12 +21,21 @@ export default function Hero() {
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
+    // Auto-play carousel
+    useEffect(() => {
+        if (paused) return;
+        const interval = setInterval(() => {
+            setCurrent((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
+        }, 5000);
+        return () => clearInterval(interval);
+    }, [paused]);
+
     const nextSlide = () => setCurrent((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
     const prevSlide = () => setCurrent((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
 
     return (
         <section className="hero-section" id="hero">
-            <div className="hero-container">
+            <div className="hero-container" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
                 {/* Floating Neo-Brutalist Badges */}
                 <motion.div
                     style={{ position: 'absolute', top: '15%', left: '2%', backgroundColor: '#FFB6C1', padding: '1rem 2rem', borderRadius: '50px', border: '4px solid var(--text-dark)', fontWeight: 900, fontSize: '1.2rem', zIndex: 10, pointerEvents: 'none', boxShadow: '5px 5px 0px 0px var(--text-dark)' }}

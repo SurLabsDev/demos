@@ -25,7 +25,7 @@ export default function Header() {
             >
                 <div className="header-container">
                     <div className="logo-container">
-                        <span className="brand-name" style={{ fontSize: '1.5rem', fontWeight: 900, fontStyle: 'italic', letterSpacing: '0.1em' }}>SUR*STUDIO</span>
+                        <span className="brand-name" style={{ fontSize: '1.5rem', fontWeight: 900, fontStyle: 'italic', letterSpacing: '0.1em' }}>CHA*HAUS</span>
                     </div>
 
                     <nav className="desktop-nav">

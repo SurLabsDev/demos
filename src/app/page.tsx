@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Briefcase, ShoppingBag, Palette, Gamepad2, CalendarCheck, Coffee } from "lucide-react";
+import { Briefcase, ShoppingBag, Palette, Gamepad2, CalendarCheck, Coffee, Bot, Building2, Rocket, Heart } from "lucide-react";
 
 export default function Home() {
   const demos = [
@@ -24,7 +24,7 @@ export default function Home() {
     {
       href: "/ejemplo4",
       title: "Menú Digital Arcade",
-      description: "Menú interactivo con estética retro y animaciones Gamificadas.",
+      description: "Menú interactivo con estética retro y animaciones gamificadas.",
       icon: <Gamepad2 className="w-5 h-5" />
     },
     {
@@ -38,6 +38,30 @@ export default function Home() {
       title: "Tienda Concepto Gastronómico",
       description: "Landing page interactiva con menú, carrusel y club de beneficios.",
       icon: <Coffee className="w-5 h-5" />
+    },
+    {
+      href: "/ejemplo7",
+      title: "Dashboard de IA y Automatización",
+      description: "Centro de operaciones con asistente AI, workflows y métricas en vivo.",
+      icon: <Bot className="w-5 h-5" />
+    },
+    {
+      href: "/ejemplo8",
+      title: "Portal Inmobiliario",
+      description: "Plataforma de propiedades con filtros, favoritos y galería interactiva.",
+      icon: <Building2 className="w-5 h-5" />
+    },
+    {
+      href: "/ejemplo9",
+      title: "SaaS Landing Page",
+      description: "Landing de alta conversión con pricing, features y testimonios.",
+      icon: <Rocket className="w-5 h-5" />
+    },
+    {
+      href: "/ejemplo10",
+      title: "App de Fitness & Wellness",
+      description: "Interfaz mobile-first con rutinas, métricas y charts de actividad.",
+      icon: <Heart className="w-5 h-5" />
     }
   ];
 

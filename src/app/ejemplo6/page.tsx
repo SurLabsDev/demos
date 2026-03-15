@@ -8,6 +8,7 @@ import MenuSection from './components/MenuSection';
 import MysteryBoxSection from './components/MysteryBoxSection';
 import ClubSection from './components/ClubSection';
 import Footer from './components/Footer';
+import DemoNav from '../components/DemoNav';
 
 export default function Ejemplo6Page() {
     return (
@@ -19,6 +20,7 @@ export default function Ejemplo6Page() {
             <MysteryBoxSection />
             <ClubSection />
             <Footer />
+            <DemoNav />
         </div>
     );
 }
