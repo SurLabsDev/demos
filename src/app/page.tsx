@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Briefcase, ShoppingBag, Palette, Gamepad2, CalendarCheck, Coffee, Bot, Building2, Rocket, Heart } from "lucide-react";
+import { Briefcase, ShoppingBag, Palette, Gamepad2, CalendarCheck, Coffee, Bot, Building2, Rocket, Heart, GraduationCap, Utensils } from "lucide-react";
 
 export default function Home() {
   const demos = [
@@ -62,6 +62,18 @@ export default function Home() {
       title: "App de Fitness & Wellness",
       description: "Interfaz mobile-first con rutinas, métricas y charts de actividad.",
       icon: <Heart className="w-5 h-5" />
+    },
+    {
+      href: "/ejemplo11",
+      title: "Plataforma E-Learning",
+      description: "Campus virtual con cursos, progreso, gamificación y contenido interactivo.",
+      icon: <GraduationCap className="w-5 h-5" />
+    },
+    {
+      href: "/ejemplo12",
+      title: "Restaurante Fine Dining",
+      description: "Carta digital elegante con categorías, reseñas y sistema de reservas.",
+      icon: <Utensils className="w-5 h-5" />
     }
   ];
 

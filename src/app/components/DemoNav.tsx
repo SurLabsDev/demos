@@ -16,6 +16,8 @@ const demos = [
   { href: "/ejemplo8", title: "Portal Inmobiliario" },
   { href: "/ejemplo9", title: "SaaS Landing" },
   { href: "/ejemplo10", title: "App Fitness" },
+  { href: "/ejemplo11", title: "E-Learning" },
+  { href: "/ejemplo12", title: "Restaurante" },
 ];
 
 export default function DemoNav() {
