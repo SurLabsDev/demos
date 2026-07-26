@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { MapPin, Phone, Instagram } from 'lucide-react';
+import { ADDRESS, MAPS_URL, PHONE_DISPLAY, PHONE_HREF, INSTAGRAM_HANDLE, INSTAGRAM_URL } from '../constants';
 import './Footer.css';
 
 export default function Footer() {
@@ -15,17 +16,17 @@ export default function Footer() {
                 >
                     <div className="footer-info">
                         <h2>La experiencia se vive mejor en persona</h2>
-                        <p>Canelones 2370, Montevideo, Uruguay</p>
+                        <p>{ADDRESS}</p>
 
                         <div className="footer-links">
-                            <a href="https://maps.app.goo.gl/YourMapLink" target="_blank" rel="noreferrer" className="footer-btn">
+                            <a href={MAPS_URL} target="_blank" rel="noreferrer" className="footer-btn">
                                 <MapPin size={20} /> Mirá cómo llegar
                             </a>
-                            <a href="tel:+59891300873" className="footer-btn">
-                                <Phone size={20} /> 091 661 552
+                            <a href={PHONE_HREF} className="footer-btn">
+                                <Phone size={20} /> {PHONE_DISPLAY}
                             </a>
-                            <a href="https://www.instagram.com/SUR*STUDIO.uy/" target="_blank" rel="noreferrer" className="footer-btn">
-                                <Instagram size={20} /> SUR*STUDIO.uy
+                            <a href={INSTAGRAM_URL} target="_blank" rel="noreferrer" className="footer-btn">
+                                <Instagram size={20} /> {INSTAGRAM_HANDLE}
                             </a>
                         </div>
                     </div>

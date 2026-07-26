@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Calendar as CalendarIcon, Clock, MapPin, User, ChevronLeft, ChevronRight, CheckCircle2, Activity } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, MapPin, User, ChevronLeft, ChevronRight, CheckCircle2, Activity, Mail, Phone, MessageSquare } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import DemoNav from "../components/DemoNav";
 
@@ -20,11 +20,41 @@ const occupiedSlots: Record<number, number[]> = {
     2: [2, 5],
 };
 
+const STEPS = [
+    { num: 1, label: "Servicio" },
+    { num: 2, label: "Fecha y Hora" },
+    { num: 3, label: "Tus datos" },
+    { num: 4, label: "Confirmación" },
+];
+const LAST_STEP = STEPS.length;
+
 export default function SmartBooking() {
     const [step, setStep] = useState(1);
     const [selectedService, setSelectedService] = useState<string | null>(null);
     const [selectedDate, setSelectedDate] = useState<number | null>(null);
     const [selectedTime, setSelectedTime] = useState<string | null>(null);
+
+    // Sin estos campos la reserva se confirmaba sin saber quién reservó.
+    const [fullName, setFullName] = useState("");
+    const [email, setEmail] = useState("");
+    const [phone, setPhone] = useState("");
+    const [notes, setNotes] = useState("");
+
+    const detailsValid =
+        fullName.trim().length > 2 &&
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) &&
+        phone.trim().length > 5;
+
+    const resetAll = () => {
+        setStep(1);
+        setSelectedService(null);
+        setSelectedDate(null);
+        setSelectedTime(null);
+        setFullName("");
+        setEmail("");
+        setPhone("");
+        setNotes("");
+    };
 
     const today = new Date();
     const [viewMonth, setViewMonth] = useState(today.getMonth());
@@ -113,15 +143,11 @@ export default function SmartBooking() {
                         <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-slate-100 rounded-full -z-10" />
                         <motion.div
                             className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-blue-500 rounded-full -z-10"
-                            animate={{ width: `${(step - 1) * 50}%` }}
+                            animate={{ width: `${((step - 1) / (LAST_STEP - 1)) * 100}%` }}
                             transition={{ duration: 0.4 }}
                         />
 
-                        {[
-                            { num: 1, label: "Servicio" },
-                            { num: 2, label: "Fecha y Hora" },
-                            { num: 3, label: "Confirmación" }
-                        ].map((s) => (
+                        {STEPS.map((s) => (
                             <div key={s.num} className="flex flex-col items-center gap-2">
                                 <motion.div
                                     animate={{
@@ -132,7 +158,7 @@ export default function SmartBooking() {
                                 >
                                     {step > s.num ? <CheckCircle2 size={20} /> : s.num}
                                 </motion.div>
-                                <span className={`text-xs font-semibold uppercase tracking-wider ${step >= s.num ? 'text-slate-800' : 'text-slate-400'}`}>
+                                <span className={`text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-center ${step >= s.num ? 'text-slate-800' : 'text-slate-400'}`}>
                                     {s.label}
                                 </span>
                             </div>
@@ -150,21 +176,24 @@ export default function SmartBooking() {
 
                                 <div className="grid gap-4">
                                     {services.map((service) => (
+                                        /* Padding y gaps reducidos en mobile, y min-w-0 en el
+                                           contenido: a 390px la tarjeta medía 359px y se salía
+                                           18px de la pantalla. */
                                         <label
                                             key={service.id}
-                                            className={`relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 flex items-center gap-6
+                                            className={`relative p-4 sm:p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 flex items-center gap-3 sm:gap-6
                         ${selectedService === service.id
                                                     ? 'border-blue-500 bg-blue-50/50 shadow-md ring-4 ring-blue-500/10'
                                                     : 'border-slate-100 hover:border-blue-200 hover:bg-slate-50'}`}
                                         >
                                             <input type="radio" name="service" className="sr-only" checked={selectedService === service.id} onChange={() => setSelectedService(service.id)} />
-                                            <div className="p-4 bg-white rounded-xl shadow-sm shrink-0">{service.icon}</div>
-                                            <div className="flex-1">
-                                                <div className="flex justify-between items-start mb-1">
-                                                    <h3 className="font-bold text-lg text-slate-900">{service.name}</h3>
-                                                    <span className="font-semibold text-slate-900">{service.price}</span>
+                                            <div className="p-3 sm:p-4 bg-white rounded-xl shadow-sm shrink-0">{service.icon}</div>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex justify-between items-start gap-2 mb-1">
+                                                    <h3 className="font-bold text-base sm:text-lg text-slate-900 leading-tight">{service.name}</h3>
+                                                    <span className="font-semibold text-slate-900 shrink-0">{service.price}</span>
                                                 </div>
-                                                <div className="flex items-center gap-4 text-sm text-slate-500 font-medium">
+                                                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs sm:text-sm text-slate-500 font-medium">
                                                     <span className="flex items-center gap-1"><Clock size={14} /> {service.duration}</span>
                                                     <span className="flex items-center gap-1"><MapPin size={14} /> Clínica Central</span>
                                                 </div>
@@ -278,7 +307,88 @@ export default function SmartBooking() {
                         )}
 
                         {step === 3 && (
-                            <motion.div key="step3" variants={stepVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.3 }} className="text-center max-w-md mx-auto">
+                            <motion.div key="step3" variants={stepVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.3 }}>
+                                <h2 className="text-3xl font-bold text-slate-900 mb-2">Tus datos</h2>
+                                <p className="text-slate-500 mb-8">Los necesitamos para confirmarte el turno y avisarte ante cualquier cambio.</p>
+
+                                <div className="grid gap-5 max-w-xl">
+                                    <div>
+                                        <label htmlFor="nombre" className="flex items-center gap-1.5 text-sm font-semibold text-slate-700 mb-2">
+                                            <User size={14} className="text-blue-500" /> Nombre y apellido
+                                        </label>
+                                        <input
+                                            id="nombre"
+                                            type="text"
+                                            required
+                                            value={fullName}
+                                            onChange={(e) => setFullName(e.target.value)}
+                                            placeholder="Ana Rodríguez"
+                                            className="w-full bg-white border-2 border-slate-100 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-500 transition-colors placeholder:text-slate-300"
+                                        />
+                                    </div>
+
+                                    <div className="grid sm:grid-cols-2 gap-5">
+                                        <div>
+                                            <label htmlFor="email" className="flex items-center gap-1.5 text-sm font-semibold text-slate-700 mb-2">
+                                                <Mail size={14} className="text-blue-500" /> Correo electrónico
+                                            </label>
+                                            <input
+                                                id="email"
+                                                type="email"
+                                                required
+                                                value={email}
+                                                onChange={(e) => setEmail(e.target.value)}
+                                                placeholder="ana@correo.com"
+                                                className="w-full bg-white border-2 border-slate-100 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-500 transition-colors placeholder:text-slate-300"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label htmlFor="tel" className="flex items-center gap-1.5 text-sm font-semibold text-slate-700 mb-2">
+                                                <Phone size={14} className="text-blue-500" /> Teléfono
+                                            </label>
+                                            <input
+                                                id="tel"
+                                                type="tel"
+                                                required
+                                                value={phone}
+                                                onChange={(e) => setPhone(e.target.value)}
+                                                placeholder="099 123 456"
+                                                className="w-full bg-white border-2 border-slate-100 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-500 transition-colors placeholder:text-slate-300"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="notas" className="flex items-center gap-1.5 text-sm font-semibold text-slate-700 mb-2">
+                                            <MessageSquare size={14} className="text-blue-500" /> Motivo de la consulta <span className="font-normal text-slate-400">(opcional)</span>
+                                        </label>
+                                        <textarea
+                                            id="notas"
+                                            rows={3}
+                                            value={notes}
+                                            onChange={(e) => setNotes(e.target.value)}
+                                            placeholder="Contanos brevemente qué necesitás."
+                                            className="w-full bg-white border-2 border-slate-100 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-500 transition-colors placeholder:text-slate-300 resize-none"
+                                        />
+                                    </div>
+
+                                    {/* Resumen de lo elegido, para no tener que volver atrás */}
+                                    <div className="bg-blue-50/60 border border-blue-100 rounded-xl p-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+                                        <span className="flex items-center gap-1.5 text-slate-700 font-medium">
+                                            <CalendarIcon size={14} className="text-blue-500" />
+                                            {selectedDate} de {MONTH_NAMES[viewMonth]}
+                                        </span>
+                                        <span className="flex items-center gap-1.5 text-slate-700 font-medium">
+                                            <Clock size={14} className="text-blue-500" /> {selectedTime}
+                                        </span>
+                                        <span className="text-slate-500">{services.find(s => s.id === selectedService)?.name}</span>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+
+                        {step === 4 && (
+                            <motion.div key="step4" variants={stepVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.3 }} className="text-center max-w-md mx-auto">
                                 <motion.div
                                     initial={{ scale: 0 }}
                                     animate={{ scale: 1 }}
@@ -290,56 +400,72 @@ export default function SmartBooking() {
                                 </motion.div>
                                 <h2 className="text-3xl font-bold text-slate-900 mb-4">¡Reserva Confirmada!</h2>
                                 <p className="text-slate-500 mb-8 leading-relaxed">
-                                    Hemos enviado todos los detalles a tu correo electrónico. Te esperamos en la sucursal Centro.
+                                    Enviamos todos los detalles a {email.trim()}. Te esperamos en la sucursal Centro.
                                 </p>
 
-                                <div className="bg-slate-50 border border-slate-100 rounded-2xl p-6 text-left mb-8 shadow-inner">
-                                    <div className="flex justify-between items-center mb-4 pb-4 border-b border-slate-200">
-                                        <span className="text-slate-500 text-sm font-medium uppercase tracking-wider">Fecha y Hora</span>
-                                        <span className="font-bold text-slate-900">{selectedDate} {MONTH_NAMES[viewMonth]} {viewYear} - {selectedTime}</span>
+                                <div className="bg-slate-50 border border-slate-100 rounded-2xl p-6 text-left mb-8 shadow-inner divide-y divide-slate-200">
+                                    <div className="flex justify-between items-center gap-4 pb-4">
+                                        <span className="text-slate-500 text-sm font-medium uppercase tracking-wider shrink-0">Fecha y Hora</span>
+                                        <span className="font-bold text-slate-900 text-right">{selectedDate} {MONTH_NAMES[viewMonth]} {viewYear} - {selectedTime}</span>
                                     </div>
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-slate-500 text-sm font-medium uppercase tracking-wider">Servicio</span>
+                                    <div className="flex justify-between items-center gap-4 py-4">
+                                        <span className="text-slate-500 text-sm font-medium uppercase tracking-wider shrink-0">Servicio</span>
                                         <span className="font-bold text-blue-600 text-right">{services.find(s => s.id === selectedService)?.name}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center gap-4 py-4">
+                                        <span className="text-slate-500 text-sm font-medium uppercase tracking-wider shrink-0">A nombre de</span>
+                                        <span className="font-bold text-slate-900 text-right">{fullName.trim()}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center gap-4 pt-4">
+                                        <span className="text-slate-500 text-sm font-medium uppercase tracking-wider shrink-0">Teléfono</span>
+                                        <span className="font-bold text-slate-900 text-right">{phone.trim()}</span>
                                     </div>
                                 </div>
 
                                 <button
-                                    onClick={() => { setStep(1); setSelectedService(null); setSelectedDate(null); setSelectedTime(null); }}
+                                    onClick={resetAll}
                                     className="w-full py-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold shadow-lg shadow-slate-900/20 transition-all"
                                 >
-                                    Volver al Inicio
+                                    Reservar otro turno
                                 </button>
                             </motion.div>
                         )}
                     </AnimatePresence>
 
                     {/* Navigation Controls */}
-                    {step < 3 && (
-                        <div className="mt-12 pt-8 border-t border-slate-100 flex items-center justify-between">
-                            {step > 1 ? (
-                                <button
-                                    onClick={() => setStep(step - 1)}
-                                    className="px-6 py-3 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl font-semibold transition-colors"
-                                >
-                                    Volver
-                                </button>
-                            ) : <div />}
+                    {step < LAST_STEP && (() => {
+                        const canContinue =
+                            (step === 1 && Boolean(selectedService)) ||
+                            (step === 2 && Boolean(selectedDate) && Boolean(selectedTime)) ||
+                            (step === 3 && detailsValid);
+                        const nextLabel = step === 1 ? "Fecha" : step === 2 ? "tus datos" : "Confirmación";
 
-                            <button
-                                onClick={() => setStep(step + 1)}
-                                disabled={(step === 1 && !selectedService) || (step === 2 && (!selectedDate || !selectedTime))}
-                                className={`px-8 py-4 rounded-xl flex items-center gap-2 font-bold transition-all
-                  ${((step === 1 && selectedService) || (step === 2 && selectedDate && selectedTime))
-                                        ? 'bg-blue-500 hover:bg-blue-600 text-white shadow-lg shadow-blue-500/30'
-                                        : 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                                    }`}
-                            >
-                                Continuar a {step === 1 ? 'Fecha' : 'Confirmación'}
-                                <ChevronRight size={18} />
-                            </button>
-                        </div>
-                    )}
+                        return (
+                            <div className="mt-12 pt-8 border-t border-slate-100 flex items-center justify-between gap-4">
+                                {step > 1 ? (
+                                    <button
+                                        onClick={() => setStep(step - 1)}
+                                        className="px-6 py-3 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl font-semibold transition-colors"
+                                    >
+                                        Volver
+                                    </button>
+                                ) : <div />}
+
+                                <button
+                                    onClick={() => setStep(step + 1)}
+                                    disabled={!canContinue}
+                                    className={`px-6 sm:px-8 py-4 rounded-xl flex items-center gap-2 font-bold transition-all
+                  ${canContinue
+                                            ? 'bg-blue-500 hover:bg-blue-600 text-white shadow-lg shadow-blue-500/30'
+                                            : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                                        }`}
+                                >
+                                    <span className="capitalize">{step === 3 ? "Confirmar reserva" : `Continuar a ${nextLabel}`}</span>
+                                    <ChevronRight size={18} />
+                                </button>
+                            </div>
+                        );
+                    })()}
                 </div>
             </main>
             <DemoNav />

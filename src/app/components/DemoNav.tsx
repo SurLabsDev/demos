@@ -1,9 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { Home, ChevronLeft, ChevronRight } from "lucide-react";
+import { Home, ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from "lucide-react";
 
 const demos = [
   { href: "/ejemplo1", title: "CRM Dashboard" },
@@ -22,11 +23,28 @@ const demos = [
 
 export default function DemoNav() {
   const pathname = usePathname();
+  // Esta barra flota por encima de la demo. Si en algún ancho llega a taparle un
+  // control, el visitante puede plegarla en vez de quedarse trabado.
+  const [collapsed, setCollapsed] = useState(false);
   const currentIndex = demos.findIndex((d) => d.href === pathname);
   if (currentIndex === -1) return null;
 
   const prev = currentIndex > 0 ? demos[currentIndex - 1] : null;
   const next = currentIndex < demos.length - 1 ? demos[currentIndex + 1] : null;
+
+  if (collapsed) {
+    return (
+      <motion.button
+        initial={{ scale: 0.6, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        onClick={() => setCollapsed(false)}
+        aria-label="Mostrar navegación de demos"
+        className="fixed bottom-5 left-1/2 -translate-x-1/2 z-[9999] w-10 h-10 rounded-full bg-black/70 backdrop-blur-xl border border-white/10 shadow-2xl flex items-center justify-center text-white/70 hover:text-white transition-colors"
+      >
+        <ChevronUp className="w-4 h-4" />
+      </motion.button>
+    );
+  }
 
   return (
     <motion.nav
@@ -76,6 +94,17 @@ export default function DemoNav() {
           <ChevronRight className="w-4 h-4" />
         </span>
       )}
+
+      <div className="w-px h-5 bg-white/10 mx-1" />
+
+      <button
+        onClick={() => setCollapsed(true)}
+        aria-label="Ocultar navegación de demos"
+        className="p-2 rounded-full hover:bg-white/10 transition-colors text-white/70 hover:text-white"
+        title="Ocultar"
+      >
+        <ChevronDown className="w-4 h-4" />
+      </button>
     </motion.nav>
   );
 }

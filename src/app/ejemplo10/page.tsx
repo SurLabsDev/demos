@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Home, Activity, Apple, User, Bell, ChevronRight, Flame, Droplets, Footprints, Play, Clock, Dumbbell, Trophy } from "lucide-react";
+import { Home, Activity, Apple, User, Bell, ChevronRight, Flame, Droplets, Footprints, Play, Clock, Dumbbell, Trophy, Award, Target, Heart, Settings, Ruler, Scale, Plus, Minus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import DemoNav from "../components/DemoNav";
 
@@ -46,9 +46,48 @@ const weekData = [
 ];
 const maxMins = Math.max(...weekData.map((d) => d.mins), 1);
 
+const recentSessions = [
+    { name: "HIIT Matutino", date: "Hoy · 07:30", mins: 25, cal: 320, icon: Flame, tint: "bg-orange-100 text-orange-600" },
+    { name: "Fuerza Superior", date: "Ayer · 19:00", mins: 40, cal: 280, icon: Dumbbell, tint: "bg-blue-100 text-blue-600" },
+    { name: "Running suave", date: "Sáb · 08:15", mins: 25, cal: 210, icon: Footprints, tint: "bg-emerald-100 text-emerald-600" },
+    { name: "Yoga Flow", date: "Vie · 20:30", mins: 30, cal: 150, icon: Activity, tint: "bg-violet-100 text-violet-600" },
+];
+
+const personalRecords = [
+    { label: "Racha más larga", value: "18 días" },
+    { label: "Mejor semana", value: "310 min" },
+    { label: "Más pasos en un día", value: "16.240" },
+    { label: "Entrenos totales", value: "142" },
+];
+
+const meals = [
+    { name: "Desayuno", detail: "Avena, banana y café", cal: 380, icon: "07:40" },
+    { name: "Almuerzo", detail: "Pollo, arroz integral y ensalada", cal: 520, icon: "13:10" },
+    { name: "Merienda", detail: "Yogur griego con nueces", cal: 240, icon: "17:00" },
+];
+
+const macros = [
+    { label: "Proteínas", current: 82, target: 120, unit: "g", color: "#EF4444" },
+    { label: "Carbohidratos", current: 145, target: 220, unit: "g", color: "#F97316" },
+    { label: "Grasas", current: 38, target: 60, unit: "g", color: "#3B82F6" },
+];
+
+const profileStats = [
+    { label: "Peso", value: "64,2", unit: "kg", icon: Scale },
+    { label: "Altura", value: "168", unit: "cm", icon: Ruler },
+    { label: "FC reposo", value: "58", unit: "bpm", icon: Heart },
+];
+
+const profileGoals = [
+    { label: "Entrenar 5 días por semana", progress: 80 },
+    { label: "10.000 pasos diarios", progress: 84 },
+    { label: "Bajar 2 kg en el trimestre", progress: 45 },
+];
+
 export default function FitnessApp() {
     const [activeTab, setActiveTab] = useState("home");
     const [expandedWorkout, setExpandedWorkout] = useState<number | null>(null);
+    const [glasses, setGlasses] = useState(6);
 
     const tabs = [
         { id: "home", icon: Home, label: "Inicio" },
@@ -57,8 +96,22 @@ export default function FitnessApp() {
         { id: "profile", icon: User, label: "Perfil" },
     ];
 
+    const screenTitles: Record<string, { eyebrow: string; title: string }> = {
+        home: { eyebrow: "Buenos días", title: "Ana" },
+        activity: { eyebrow: "Tu historial", title: "Actividad" },
+        nutrition: { eyebrow: "Hoy comiste", title: "Nutrición" },
+        profile: { eyebrow: "Tu cuenta", title: "Perfil" },
+    };
+    const screen = screenTitles[activeTab];
+
+    const caloriesEaten = meals.reduce((sum, m) => sum + m.cal, 0);
+    const caloriesGoal = 2000;
+    const monthlyMins = 1240;
+
     return (
-        <div className="min-h-screen bg-gradient-to-b from-[#FFF7ED] to-[#FEF3E2] flex items-start justify-center font-sans selection:bg-orange-200 p-4 sm:py-10">
+        /* pb-28 en mobile: deja una banda libre debajo del "teléfono" para que el
+           pill de navegación de las demos no quede encima de la tab bar. */
+        <div className="min-h-screen bg-gradient-to-b from-[#FFF7ED] to-[#FEF3E2] flex items-start justify-center font-sans selection:bg-orange-200 p-4 pb-28 sm:py-10">
 
             {/* Phone Frame */}
             <div className="w-full max-w-[430px] relative">
@@ -81,8 +134,10 @@ export default function FitnessApp() {
                     {/* Header */}
                     <div className="px-6 pt-2 pb-4 flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-[#A68A3E]">Buenos días</p>
-                            <h1 className="text-2xl font-bold text-[#1A1A1A] tracking-tight">Ana 👋</h1>
+                            <p className="text-sm text-[#A68A3E]">{screen.eyebrow}</p>
+                            <h1 className="text-2xl font-bold text-[#1A1A1A] tracking-tight">
+                                {screen.title}{activeTab === "home" ? " 👋" : ""}
+                            </h1>
                         </div>
                         <div className="flex items-center gap-3">
                             <button className="relative p-2">
@@ -96,8 +151,18 @@ export default function FitnessApp() {
                     </div>
 
                     {/* Scrollable content */}
-                    <div className="flex-1 overflow-y-auto px-6 pb-24 space-y-6">
+                    <div className="flex-1 overflow-y-auto px-6 pb-24">
+                      <AnimatePresence mode="wait">
+                       <motion.div
+                            key={activeTab}
+                            initial={{ opacity: 0, x: 12 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -12 }}
+                            transition={{ duration: 0.2 }}
+                            className="space-y-6"
+                       >
 
+                        {activeTab === "home" && (<>
                         {/* Streak banner */}
                         <motion.div
                             initial={{ opacity: 0, y: 10 }}
@@ -116,22 +181,30 @@ export default function FitnessApp() {
 
                         {/* Summary Cards */}
                         <div className="flex gap-3 overflow-x-auto pb-1 -mx-1 px-1 snap-x">
-                            {summaryCards.map((card, i) => (
-                                <motion.div
-                                    key={i}
-                                    initial={{ opacity: 0, y: 15 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.1 + i * 0.1 }}
-                                    className="bg-white rounded-2xl p-4 min-w-[130px] flex-1 shadow-sm border border-orange-100/50 snap-start"
-                                >
-                                    <div className="flex items-center justify-between mb-3">
-                                        <card.icon size={18} style={{ color: card.color }} />
-                                        <ProgressRing progress={card.progress} size={40} stroke={3} color={card.color} />
-                                    </div>
-                                    <p className="text-xl font-bold text-[#1A1A1A] leading-tight">{card.value}</p>
-                                    <p className="text-[10px] text-[#999] mt-0.5">{card.target}</p>
-                                </motion.div>
-                            ))}
+                            {summaryCards.map((card, i) => {
+                                // El vaso de agua es el único dato editable de la app, y se
+                                // edita en Nutrición: la tarjeta de Inicio lee ese mismo estado.
+                                const isWater = card.label === "Agua";
+                                const value = isWater ? String(glasses) : card.value;
+                                const progress = isWater ? (glasses / 8) * 100 : card.progress;
+
+                                return (
+                                    <motion.div
+                                        key={i}
+                                        initial={{ opacity: 0, y: 15 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.1 + i * 0.1 }}
+                                        className="bg-white rounded-2xl p-4 min-w-[130px] flex-1 shadow-sm border border-orange-100/50 snap-start"
+                                    >
+                                        <div className="flex items-center justify-between mb-3">
+                                            <card.icon size={18} style={{ color: card.color }} />
+                                            <ProgressRing progress={progress} size={40} stroke={3} color={card.color} />
+                                        </div>
+                                        <p className="text-xl font-bold text-[#1A1A1A] leading-tight">{value}</p>
+                                        <p className="text-[10px] text-[#999] mt-0.5">{card.target}</p>
+                                    </motion.div>
+                                );
+                            })}
                         </div>
 
                         {/* Workout Section */}
@@ -231,6 +304,244 @@ export default function FitnessApp() {
                                 </div>
                             </div>
                         </div>
+                        </>)}
+
+                        {activeTab === "activity" && (<>
+                            {/* Resumen del mes */}
+                            <div className="bg-white rounded-2xl p-5 border border-orange-100/50 shadow-sm flex items-center gap-5">
+                                <div className="relative shrink-0">
+                                    <ProgressRing progress={72} size={84} stroke={7} color="#F97316" />
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                        <span className="text-lg font-bold text-[#1A1A1A] leading-none">72%</span>
+                                        <span className="text-[9px] text-[#999] mt-0.5">meta</span>
+                                    </div>
+                                </div>
+                                <div className="flex-1">
+                                    <p className="text-xs text-[#999] uppercase tracking-wider font-semibold mb-1">Este mes</p>
+                                    <p className="text-2xl font-bold text-[#1A1A1A] leading-tight">{monthlyMins.toLocaleString("es-UY")} min</p>
+                                    <p className="text-xs text-[#999] mt-1">18 entrenamientos · 6.480 cal</p>
+                                </div>
+                            </div>
+
+                            {/* Historial */}
+                            <div>
+                                <h2 className="font-bold text-[#1A1A1A] mb-3">Sesiones recientes</h2>
+                                <div className="space-y-3">
+                                    {recentSessions.map((s, i) => (
+                                        <motion.div
+                                            key={s.name}
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: i * 0.07 }}
+                                            className="bg-white rounded-2xl border border-orange-100/50 shadow-sm p-4 flex items-center gap-4"
+                                        >
+                                            <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${s.tint}`}>
+                                                <s.icon size={20} />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <h3 className="font-bold text-sm text-[#1A1A1A] truncate">{s.name}</h3>
+                                                <p className="text-xs text-[#999] mt-0.5">{s.date}</p>
+                                            </div>
+                                            <div className="text-right shrink-0">
+                                                <p className="text-sm font-bold text-[#1A1A1A]">{s.mins} min</p>
+                                                <p className="text-[10px] text-[#999]">{s.cal} cal</p>
+                                            </div>
+                                        </motion.div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Récords */}
+                            <div>
+                                <h2 className="font-bold text-[#1A1A1A] mb-3">Tus récords</h2>
+                                <div className="grid grid-cols-2 gap-3">
+                                    {personalRecords.map((r) => (
+                                        <div key={r.label} className="bg-white rounded-2xl border border-orange-100/50 shadow-sm p-4">
+                                            <Award size={16} className="text-orange-500 mb-2" />
+                                            <p className="text-lg font-bold text-[#1A1A1A] leading-tight">{r.value}</p>
+                                            <p className="text-[10px] text-[#999] mt-1 leading-snug">{r.label}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </>)}
+
+                        {activeTab === "nutrition" && (<>
+                            {/* Calorías del día */}
+                            <div className="bg-gradient-to-r from-orange-500 to-pink-500 rounded-2xl p-5 text-white shadow-lg shadow-orange-500/20">
+                                <p className="text-xs text-white/80 uppercase tracking-wider font-semibold">Calorías de hoy</p>
+                                <div className="flex items-end gap-2 mt-1">
+                                    <span className="text-4xl font-bold leading-none">{caloriesEaten.toLocaleString("es-UY")}</span>
+                                    <span className="text-sm text-white/70 mb-0.5">/ {caloriesGoal.toLocaleString("es-UY")} kcal</span>
+                                </div>
+                                <div className="h-2 bg-white/25 rounded-full mt-4 overflow-hidden">
+                                    <motion.div
+                                        className="h-full bg-white rounded-full"
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${Math.min((caloriesEaten / caloriesGoal) * 100, 100)}%` }}
+                                        transition={{ duration: 0.8, ease: "easeOut" }}
+                                    />
+                                </div>
+                                <p className="text-xs text-white/80 mt-2">Te quedan {(caloriesGoal - caloriesEaten).toLocaleString("es-UY")} kcal</p>
+                            </div>
+
+                            {/* Macros */}
+                            <div className="bg-white rounded-2xl p-5 border border-orange-100/50 shadow-sm space-y-4">
+                                <h2 className="font-bold text-[#1A1A1A]">Macronutrientes</h2>
+                                {macros.map((m, i) => (
+                                    <div key={m.label}>
+                                        <div className="flex items-center justify-between text-xs mb-1.5">
+                                            <span className="font-semibold text-[#1A1A1A]">{m.label}</span>
+                                            <span className="text-[#999]">{m.current} / {m.target} {m.unit}</span>
+                                        </div>
+                                        <div className="h-2 bg-[#F3F4F6] rounded-full overflow-hidden">
+                                            <motion.div
+                                                className="h-full rounded-full"
+                                                style={{ backgroundColor: m.color }}
+                                                initial={{ width: 0 }}
+                                                animate={{ width: `${(m.current / m.target) * 100}%` }}
+                                                transition={{ duration: 0.7, delay: i * 0.1, ease: "easeOut" }}
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Comidas */}
+                            <div>
+                                <h2 className="font-bold text-[#1A1A1A] mb-3">Comidas del día</h2>
+                                <div className="space-y-3">
+                                    {meals.map((m, i) => (
+                                        <motion.div
+                                            key={m.name}
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: i * 0.07 }}
+                                            className="bg-white rounded-2xl border border-orange-100/50 shadow-sm p-4 flex items-center gap-4"
+                                        >
+                                            <div className="w-11 h-11 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center shrink-0 text-[10px] font-bold">
+                                                {m.icon}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <h3 className="font-bold text-sm text-[#1A1A1A]">{m.name}</h3>
+                                                <p className="text-xs text-[#999] mt-0.5 truncate">{m.detail}</p>
+                                            </div>
+                                            <span className="text-sm font-bold text-[#1A1A1A] shrink-0">{m.cal} cal</span>
+                                        </motion.div>
+                                    ))}
+                                    <button className="w-full border-2 border-dashed border-orange-200 text-orange-500 rounded-2xl py-3 text-sm font-semibold">
+                                        + Agregar cena
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Agua */}
+                            <div className="bg-white rounded-2xl p-5 border border-orange-100/50 shadow-sm">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="flex items-center gap-2">
+                                        <Droplets size={18} className="text-blue-500" />
+                                        <h2 className="font-bold text-[#1A1A1A]">Agua</h2>
+                                    </div>
+                                    <span className="text-sm font-bold text-[#1A1A1A]">{glasses} / 8 vasos</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={() => setGlasses((g) => Math.max(0, g - 1))}
+                                        aria-label="Quitar un vaso de agua"
+                                        className="w-9 h-9 rounded-xl bg-[#F3F4F6] text-[#666] flex items-center justify-center shrink-0 active:scale-95 transition-transform"
+                                    >
+                                        <Minus size={16} />
+                                    </button>
+                                    <div className="flex-1 flex gap-1.5 justify-center">
+                                        {[...Array(8)].map((_, i) => (
+                                            <div
+                                                key={i}
+                                                className={`h-8 flex-1 rounded-md transition-colors ${i < glasses ? "bg-blue-400" : "bg-[#F3F4F6]"}`}
+                                            />
+                                        ))}
+                                    </div>
+                                    <button
+                                        onClick={() => setGlasses((g) => Math.min(8, g + 1))}
+                                        aria-label="Sumar un vaso de agua"
+                                        className="w-9 h-9 rounded-xl bg-blue-500 text-white flex items-center justify-center shrink-0 active:scale-95 transition-transform"
+                                    >
+                                        <Plus size={16} />
+                                    </button>
+                                </div>
+                            </div>
+                        </>)}
+
+                        {activeTab === "profile" && (<>
+                            {/* Ficha */}
+                            <div className="bg-white rounded-2xl p-6 border border-orange-100/50 shadow-sm text-center">
+                                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-orange-300 to-pink-300 flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-orange-200 mx-auto mb-3">
+                                    A
+                                </div>
+                                <h2 className="font-bold text-lg text-[#1A1A1A]">Ana Fernández</h2>
+                                <p className="text-xs text-[#999] mt-0.5">Plan Premium · desde marzo 2026</p>
+                                <div className="flex items-center justify-center gap-1.5 mt-3">
+                                    <Trophy size={14} className="text-amber-500" />
+                                    <span className="text-xs font-bold text-amber-600">Nivel 12 · 4.820 puntos</span>
+                                </div>
+                            </div>
+
+                            {/* Datos */}
+                            <div className="grid grid-cols-3 gap-3">
+                                {profileStats.map((s) => (
+                                    <div key={s.label} className="bg-white rounded-2xl border border-orange-100/50 shadow-sm p-4 text-center">
+                                        <s.icon size={16} className="text-orange-500 mx-auto mb-2" />
+                                        <p className="text-lg font-bold text-[#1A1A1A] leading-none">{s.value}</p>
+                                        <p className="text-[9px] text-[#999] mt-1">{s.unit}</p>
+                                        <p className="text-[10px] text-[#666] font-semibold mt-1.5">{s.label}</p>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Objetivos */}
+                            <div className="bg-white rounded-2xl p-5 border border-orange-100/50 shadow-sm space-y-4">
+                                <div className="flex items-center gap-2">
+                                    <Target size={18} className="text-orange-500" />
+                                    <h2 className="font-bold text-[#1A1A1A]">Tus objetivos</h2>
+                                </div>
+                                {profileGoals.map((g, i) => (
+                                    <div key={g.label}>
+                                        <div className="flex items-center justify-between text-xs mb-1.5">
+                                            <span className="font-medium text-[#1A1A1A]">{g.label}</span>
+                                            <span className="text-[#999] font-semibold">{g.progress}%</span>
+                                        </div>
+                                        <div className="h-2 bg-[#F3F4F6] rounded-full overflow-hidden">
+                                            <motion.div
+                                                className="h-full bg-gradient-to-r from-orange-500 to-pink-500 rounded-full"
+                                                initial={{ width: 0 }}
+                                                animate={{ width: `${g.progress}%` }}
+                                                transition={{ duration: 0.7, delay: i * 0.1, ease: "easeOut" }}
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Ajustes */}
+                            <div className="bg-white rounded-2xl border border-orange-100/50 shadow-sm overflow-hidden">
+                                {[
+                                    { icon: Bell, label: "Notificaciones" },
+                                    { icon: Heart, label: "Conectar con Apple Health" },
+                                    { icon: Settings, label: "Preferencias" },
+                                ].map((row, i, arr) => (
+                                    <button
+                                        key={row.label}
+                                        className={`w-full flex items-center gap-3 px-5 py-4 text-left ${i < arr.length - 1 ? "border-b border-orange-50" : ""}`}
+                                    >
+                                        <row.icon size={18} className="text-[#6B5B30] shrink-0" />
+                                        <span className="flex-1 text-sm font-medium text-[#1A1A1A]">{row.label}</span>
+                                        <ChevronRight size={16} className="text-[#CCC] shrink-0" />
+                                    </button>
+                                ))}
+                            </div>
+                        </>)}
+
+                       </motion.div>
+                      </AnimatePresence>
                     </div>
 
                     {/* Tab Bar */}

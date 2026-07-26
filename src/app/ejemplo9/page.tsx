@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, ArrowRight, Zap, Shield, BarChart3, Star, ChevronRight, Mail, Users, Clock, Layers } from "lucide-react";
+import { Check, ArrowRight, Zap, BarChart3, Star, ChevronRight, Mail, Layers } from "lucide-react";
 import { motion } from "framer-motion";
 import DemoNav from "../components/DemoNav";
 
@@ -11,11 +11,14 @@ const features = [
     { icon: BarChart3, title: "Reportes en Tiempo Real", desc: "Dashboards dinámicos con las métricas que importan. Exporta en un click." },
 ];
 
+type Billing = "mensual" | "anual";
+
+/** El precio anual es el mensual con 20% off, cobrado por año. */
 const pricing = [
     {
         name: "Starter",
-        price: "$0",
-        period: "para siempre",
+        monthly: 0,
+        annual: 0,
         desc: "Perfecto para equipos pequeños empezando a organizarse.",
         features: ["Hasta 5 usuarios", "3 proyectos activos", "Tableros básicos", "500 MB almacenamiento"],
         cta: "Empezar Gratis",
@@ -23,8 +26,8 @@ const pricing = [
     },
     {
         name: "Pro",
-        price: "$29",
-        period: "por usuario/mes",
+        monthly: 29,
+        annual: 23,
         desc: "Para equipos que necesitan potencia y flexibilidad total.",
         features: ["Usuarios ilimitados", "Proyectos ilimitados", "Automatizaciones avanzadas", "Reportes personalizados", "Integraciones (Slack, Notion)", "Soporte prioritario"],
         cta: "Iniciar Prueba Gratis",
@@ -32,8 +35,8 @@ const pricing = [
     },
     {
         name: "Enterprise",
-        price: "Custom",
-        period: "facturación anual",
+        monthly: null,
+        annual: null,
         desc: "Para organizaciones que requieren control total y compliance.",
         features: ["Todo de Pro", "SSO & SAML", "SLA garantizado", "Onboarding dedicado", "API avanzada", "Auditoría completa"],
         cta: "Contactar Ventas",
@@ -51,6 +54,11 @@ const logos = ["Meridian", "Quantum", "Vertex", "Helios", "Nextera", "Pulsar"];
 
 export default function SaaSLanding() {
     const [emailSent, setEmailSent] = useState(false);
+    const [billing, setBilling] = useState<Billing>("mensual");
+
+    const goToSignup = () => {
+        document.getElementById("empezar")?.scrollIntoView({ behavior: "smooth" });
+    };
 
     return (
         <div className="min-h-screen bg-white text-[#111827] font-sans selection:bg-indigo-100">
@@ -70,7 +78,7 @@ export default function SaaSLanding() {
                     </div>
                     <div className="flex items-center gap-3">
                         <button className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors hidden sm:block">Iniciar Sesión</button>
-                        <button className="bg-indigo-600 text-white text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-indigo-700 transition-colors">
+                        <button onClick={goToSignup} className="bg-indigo-600 text-white text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-indigo-700 transition-colors">
                             Prueba Gratis
                         </button>
                     </div>
@@ -97,12 +105,12 @@ export default function SaaSLanding() {
                         </p>
 
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                            <button className="bg-indigo-600 text-white px-8 py-4 rounded-xl font-semibold text-base hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-500/20 flex items-center gap-2">
+                            <button onClick={goToSignup} className="bg-indigo-600 text-white px-8 py-4 rounded-xl font-semibold text-base hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-500/20 flex items-center gap-2">
                                 Empezar Gratis <ArrowRight size={18} />
                             </button>
-                            <button className="text-gray-600 px-8 py-4 rounded-xl font-medium text-base border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all flex items-center gap-2">
+                            <a href="#features" className="text-gray-600 px-8 py-4 rounded-xl font-medium text-base border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all flex items-center gap-2">
                                 Ver Demo <ChevronRight size={18} />
-                            </button>
+                            </a>
                         </div>
                     </motion.div>
 
@@ -170,7 +178,7 @@ export default function SaaSLanding() {
             </section>
 
             {/* Features */}
-            <section id="features" className="max-w-6xl mx-auto px-6 py-24">
+            <section id="features" className="max-w-6xl mx-auto px-6 py-24 scroll-mt-16">
                 <div className="text-center mb-16">
                     <p className="text-sm font-semibold text-indigo-600 uppercase tracking-widest mb-3">Funcionalidades</p>
                     <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Todo lo que tu equipo necesita</h2>
@@ -197,11 +205,30 @@ export default function SaaSLanding() {
             </section>
 
             {/* Pricing */}
-            <section id="pricing" className="bg-gray-50/50 py-24">
+            <section id="pricing" className="bg-gray-50/50 py-24 scroll-mt-16">
                 <div className="max-w-6xl mx-auto px-6">
-                    <div className="text-center mb-16">
+                    <div className="text-center mb-10">
                         <p className="text-sm font-semibold text-indigo-600 uppercase tracking-widest mb-3">Precios</p>
                         <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Simple, transparente, justo</h2>
+                    </div>
+
+                    {/* Mensual / anual: es la interacción que se espera de una tabla de precios */}
+                    <div className="flex flex-col items-center gap-3 mb-12">
+                        <div className="inline-flex items-center bg-white border border-gray-200 rounded-xl p-1">
+                            {(["mensual", "anual"] as const).map((b) => (
+                                <button
+                                    key={b}
+                                    onClick={() => setBilling(b)}
+                                    aria-pressed={billing === b}
+                                    className={`px-5 py-2 rounded-lg text-sm font-semibold capitalize transition-colors ${billing === b ? "bg-indigo-600 text-white" : "text-gray-500 hover:text-gray-900"}`}
+                                >
+                                    {b}
+                                </button>
+                            ))}
+                        </div>
+                        <span className={`text-xs font-semibold transition-colors ${billing === "anual" ? "text-emerald-600" : "text-gray-400"}`}>
+                            Pagando anual ahorrás 20%
+                        </span>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
@@ -224,9 +251,24 @@ export default function SaaSLanding() {
                                 )}
                                 <h3 className="text-lg font-bold">{p.name}</h3>
                                 <div className="mt-4 mb-2">
-                                    <span className="text-4xl font-bold">{p.price}</span>
-                                    <span className={`text-sm ml-1 ${p.popular ? "text-indigo-200" : "text-gray-400"}`}>{p.period}</span>
+                                    <span className="text-4xl font-bold">
+                                        {p.monthly === null ? "Custom" : `$${billing === "anual" ? p.annual : p.monthly}`}
+                                    </span>
+                                    <span className={`text-sm ml-1 ${p.popular ? "text-indigo-200" : "text-gray-400"}`}>
+                                        {p.monthly === null
+                                            ? "a medida"
+                                            : p.monthly === 0
+                                                ? "para siempre"
+                                                : "por usuario/mes"}
+                                    </span>
                                 </div>
+                                {p.monthly !== null && p.monthly > 0 && (
+                                    <p className={`text-xs mb-4 ${p.popular ? "text-indigo-200" : "text-gray-400"}`}>
+                                        {billing === "anual"
+                                            ? `Se factura $${(p.annual ?? 0) * 12} por año`
+                                            : "Se factura mes a mes"}
+                                    </p>
+                                )}
                                 <p className={`text-sm mb-8 ${p.popular ? "text-indigo-200" : "text-gray-500"}`}>{p.desc}</p>
                                 <ul className="space-y-3 mb-8 flex-1">
                                     {p.features.map((f, j) => (
@@ -236,10 +278,13 @@ export default function SaaSLanding() {
                                         </li>
                                     ))}
                                 </ul>
-                                <button className={`w-full py-3 rounded-xl font-semibold text-sm transition-colors ${p.popular
-                                    ? "bg-white text-indigo-600 hover:bg-indigo-50"
-                                    : "bg-indigo-600 text-white hover:bg-indigo-700"
-                                    }`}>
+                                <button
+                                    onClick={goToSignup}
+                                    className={`w-full py-3 rounded-xl font-semibold text-sm transition-colors ${p.popular
+                                        ? "bg-white text-indigo-600 hover:bg-indigo-50"
+                                        : "bg-indigo-600 text-white hover:bg-indigo-700"
+                                        }`}
+                                >
                                     {p.cta}
                                 </button>
                             </motion.div>
@@ -249,7 +294,7 @@ export default function SaaSLanding() {
             </section>
 
             {/* Testimonials */}
-            <section id="testimonials" className="max-w-6xl mx-auto px-6 py-24">
+            <section id="testimonials" className="max-w-6xl mx-auto px-6 py-24 scroll-mt-16">
                 <div className="text-center mb-16">
                     <p className="text-sm font-semibold text-indigo-600 uppercase tracking-widest mb-3">Testimonios</p>
                     <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Lo que dicen nuestros clientes</h2>
@@ -286,7 +331,7 @@ export default function SaaSLanding() {
             </section>
 
             {/* Final CTA */}
-            <section className="bg-[#111827] text-white py-24 px-6">
+            <section id="empezar" className="bg-[#111827] text-white py-24 px-6 scroll-mt-16">
                 <div className="max-w-3xl mx-auto text-center">
                     <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">Empezá a construir mejor, hoy.</h2>
                     <p className="text-gray-400 mb-10 text-lg">Unite a las empresas que ya gestionan sus equipos con FlowOS. Sin tarjeta de crédito.</p>

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { GraduationCap, BookOpen, Play, Clock, Trophy, Star, ChevronRight, BarChart3, Users, CheckCircle2, Lock } from "lucide-react";
+import { useState, useEffect } from "react";
+import { GraduationCap, BookOpen, Play, Clock, Trophy, Star, ChevronRight, Users, CheckCircle2, Lock, Award, Flame, Target } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import DemoNav from "../components/DemoNav";
 
@@ -21,11 +21,46 @@ const curriculum = [
     { title: "Handoff a Desarrollo", duration: "14:30", completed: false },
 ];
 
+const achievements = [
+    { icon: Flame, title: "Racha de 7 días", desc: "Estudiaste una semana seguida", unlocked: true, color: "amber" },
+    { icon: CheckCircle2, title: "Primer curso", desc: "Completaste tu primer curso", unlocked: true, color: "emerald" },
+    { icon: Target, title: "Meta semanal", desc: "5 horas en una semana", unlocked: true, color: "violet" },
+    { icon: Award, title: "Maratón", desc: "Completá 5 cursos", unlocked: false, color: "cyan" },
+];
+
+const weeklyStudy = [
+    { day: "Lun", mins: 45 },
+    { day: "Mar", mins: 30 },
+    { day: "Mié", mins: 75 },
+    { day: "Jue", mins: 0 },
+    { day: "Vie", mins: 60 },
+    { day: "Sáb", mins: 90 },
+    { day: "Dom", mins: 20 },
+];
+const maxStudyMins = Math.max(...weeklyStudy.map((d) => d.mins), 1);
+
 export default function ElearningPage() {
     const [activeTab, setActiveTab] = useState<"cursos" | "mi-progreso">("cursos");
     const [selectedCourse, setSelectedCourse] = useState<number | null>(null);
 
     const activeCourse = courses.find((c) => c.id === selectedCourse);
+    const inProgress = courses.filter((c) => c.progress > 0);
+    const totalStudyMins = weeklyStudy.reduce((sum, d) => sum + d.mins, 0);
+
+    // Escape cierra el modal, y mientras está abierto el fondo no scrollea.
+    useEffect(() => {
+        if (selectedCourse === null) return;
+        const onKey = (e: KeyboardEvent) => {
+            if (e.key === "Escape") setSelectedCourse(null);
+        };
+        const previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+        window.addEventListener("keydown", onKey);
+        return () => {
+            window.removeEventListener("keydown", onKey);
+            document.body.style.overflow = previousOverflow;
+        };
+    }, [selectedCourse]);
 
     return (
         <div className="min-h-screen bg-[#0F0F1A] text-white font-sans selection:bg-violet-500/30">
@@ -122,10 +157,29 @@ export default function ElearningPage() {
 
             <main className="relative z-10 max-w-6xl mx-auto px-6 py-10">
                 {/* Header */}
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
-                    <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-2">Descubrí tu próximo curso</h1>
-                    <p className="text-white/40 text-lg">Aprende a tu ritmo con contenido creado por expertos.</p>
+                <motion.div key={activeTab} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
+                    <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-2">
+                        {activeTab === "cursos" ? "Descubrí tu próximo curso" : "Tu progreso"}
+                    </h1>
+                    <p className="text-white/40 text-lg">
+                        {activeTab === "cursos"
+                            ? "Aprende a tu ritmo con contenido creado por expertos."
+                            : "Retomá donde lo dejaste y mirá cuánto avanzaste."}
+                    </p>
                 </motion.div>
+
+                {/* Selector de vista en mobile (en desktop vive en la barra superior) */}
+                <div className="md:hidden flex items-center gap-1 bg-white/5 rounded-xl p-1 mb-8 w-full">
+                    {(["cursos", "mi-progreso"] as const).map((tab) => (
+                        <button
+                            key={tab}
+                            onClick={() => setActiveTab(tab)}
+                            className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === tab ? "bg-white/10 text-white" : "text-white/40"}`}
+                        >
+                            {tab === "mi-progreso" ? "Mi Progreso" : "Cursos"}
+                        </button>
+                    ))}
+                </div>
 
                 {/* Stats row */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
@@ -149,44 +203,144 @@ export default function ElearningPage() {
                     ))}
                 </div>
 
-                {/* Course grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {courses.map((course, i) => (
-                        <motion.div
-                            key={course.id}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2 + i * 0.1 }}
-                            onClick={() => setSelectedCourse(course.id)}
-                            className="group bg-white/[0.03] border border-white/5 rounded-2xl overflow-hidden cursor-pointer hover:border-white/10 hover:bg-white/[0.05] transition-all"
-                        >
-                            <div className="relative h-44 overflow-hidden">
-                                <img src={course.image} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                                <div className="absolute inset-0 bg-gradient-to-t from-[#0F0F1A] via-transparent to-transparent" />
-                                <span className={`absolute top-3 left-3 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-gradient-to-r ${course.color} text-white`}>
-                                    {course.level}
-                                </span>
-                                {course.progress > 0 && (
-                                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/10">
-                                        <div className="h-full bg-gradient-to-r from-violet-500 to-purple-500 rounded-full" style={{ width: `${course.progress}%` }} />
+                {activeTab === "cursos" ? (
+                    /* Course grid */
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {courses.map((course, i) => (
+                            <motion.div
+                                key={course.id}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.2 + i * 0.1 }}
+                                onClick={() => setSelectedCourse(course.id)}
+                                className="group bg-white/[0.03] border border-white/5 rounded-2xl overflow-hidden cursor-pointer hover:border-white/10 hover:bg-white/[0.05] transition-all"
+                            >
+                                <div className="relative h-44 overflow-hidden">
+                                    <img src={course.image} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-[#0F0F1A] via-transparent to-transparent" />
+                                    <span className={`absolute top-3 left-3 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-gradient-to-r ${course.color} text-white`}>
+                                        {course.level}
+                                    </span>
+                                    {course.progress > 0 && (
+                                        <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/10">
+                                            <div className="h-full bg-gradient-to-r from-violet-500 to-purple-500 rounded-full" style={{ width: `${course.progress}%` }} />
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="p-5">
+                                    <h3 className="font-bold text-lg mb-1 group-hover:text-violet-300 transition-colors">{course.title}</h3>
+                                    <p className="text-sm text-white/40 mb-4">por {course.instructor}</p>
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-4 text-xs text-white/30">
+                                            <span className="flex items-center gap-1"><BookOpen size={12} /> {course.lessons}</span>
+                                            <span className="flex items-center gap-1"><Clock size={12} /> {course.duration}</span>
+                                            <span className="flex items-center gap-1"><Star size={12} className="text-amber-400" /> {course.rating}</span>
+                                        </div>
+                                        <ChevronRight size={16} className="text-white/20 group-hover:text-violet-400 transition-colors" />
                                     </div>
-                                )}
+                                </div>
+                            </motion.div>
+                        ))}
+                    </div>
+                ) : (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="space-y-10"
+                    >
+                        {/* Cursos en curso */}
+                        <section>
+                            <h2 className="text-sm font-bold uppercase tracking-wider text-white/40 mb-4">Seguí donde lo dejaste</h2>
+                            <div className="space-y-3">
+                                {inProgress.map((course) => (
+                                    <button
+                                        key={course.id}
+                                        onClick={() => setSelectedCourse(course.id)}
+                                        className="w-full text-left bg-white/[0.03] border border-white/5 rounded-2xl p-4 flex items-center gap-4 hover:border-white/10 hover:bg-white/[0.05] transition-all group"
+                                    >
+                                        <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0">
+                                            <img src={course.image} alt={course.title} className="w-full h-full object-cover" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <h3 className="font-semibold text-sm truncate group-hover:text-violet-300 transition-colors">{course.title}</h3>
+                                            <p className="text-xs text-white/30 mt-0.5 mb-2">
+                                                Lección {Math.round((course.progress / 100) * course.lessons)} de {course.lessons}
+                                            </p>
+                                            <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                                                <motion.div
+                                                    className="h-full bg-gradient-to-r from-violet-500 to-purple-500 rounded-full"
+                                                    initial={{ width: 0 }}
+                                                    animate={{ width: `${course.progress}%` }}
+                                                    transition={{ duration: 0.8, ease: "easeOut" }}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="text-right shrink-0">
+                                            <p className="text-lg font-bold">{course.progress}%</p>
+                                            <p className="text-[10px] text-white/30">completado</p>
+                                        </div>
+                                    </button>
+                                ))}
                             </div>
-                            <div className="p-5">
-                                <h3 className="font-bold text-lg mb-1 group-hover:text-violet-300 transition-colors">{course.title}</h3>
-                                <p className="text-sm text-white/40 mb-4">por {course.instructor}</p>
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-4 text-xs text-white/30">
-                                        <span className="flex items-center gap-1"><BookOpen size={12} /> {course.lessons}</span>
-                                        <span className="flex items-center gap-1"><Clock size={12} /> {course.duration}</span>
-                                        <span className="flex items-center gap-1"><Star size={12} className="text-amber-400" /> {course.rating}</span>
-                                    </div>
-                                    <ChevronRight size={16} className="text-white/20 group-hover:text-violet-400 transition-colors" />
+                        </section>
+
+                        {/* Actividad semanal */}
+                        <section>
+                            <div className="flex items-center justify-between mb-4">
+                                <h2 className="text-sm font-bold uppercase tracking-wider text-white/40">Actividad de la semana</h2>
+                                <span className="text-xs text-white/40">
+                                    {Math.floor(totalStudyMins / 60)}h {totalStudyMins % 60}m en total
+                                </span>
+                            </div>
+                            <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-6">
+                                <div className="flex items-end justify-between gap-3 h-36">
+                                    {weeklyStudy.map((d, i) => (
+                                        <div key={d.day} className="flex-1 flex flex-col items-center gap-2 h-full justify-end">
+                                            <span className="text-[10px] text-white/30">{d.mins > 0 ? `${d.mins}m` : "-"}</span>
+                                            <motion.div
+                                                className={`w-full rounded-t-lg ${d.mins > 0 ? "bg-gradient-to-t from-violet-600 to-purple-400" : "bg-white/5"}`}
+                                                initial={{ height: 0 }}
+                                                animate={{ height: `${d.mins > 0 ? (d.mins / maxStudyMins) * 100 : 3}%` }}
+                                                transition={{ duration: 0.7, delay: i * 0.06, ease: "easeOut" }}
+                                            />
+                                            <span className="text-[10px] font-semibold text-white/40">{d.day}</span>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
-                        </motion.div>
-                    ))}
-                </div>
+                        </section>
+
+                        {/* Logros */}
+                        <section>
+                            <h2 className="text-sm font-bold uppercase tracking-wider text-white/40 mb-4">Logros</h2>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                {achievements.map((a, i) => (
+                                    <motion.div
+                                        key={a.title}
+                                        initial={{ opacity: 0, scale: 0.95 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ delay: i * 0.08 }}
+                                        className={`rounded-2xl p-5 border text-center ${a.unlocked
+                                            ? "bg-white/[0.03] border-white/10"
+                                            : "bg-white/[0.01] border-white/5 opacity-40"
+                                            }`}
+                                    >
+                                        <div className={`w-11 h-11 rounded-xl mx-auto mb-3 flex items-center justify-center ${!a.unlocked ? "bg-white/5 text-white/20"
+                                            : a.color === "amber" ? "bg-amber-500/15 text-amber-400"
+                                                : a.color === "emerald" ? "bg-emerald-500/15 text-emerald-400"
+                                                    : a.color === "violet" ? "bg-violet-500/15 text-violet-400"
+                                                        : "bg-cyan-500/15 text-cyan-400"
+                                            }`}>
+                                            {a.unlocked ? <a.icon size={20} /> : <Lock size={18} />}
+                                        </div>
+                                        <p className="text-sm font-semibold leading-tight">{a.title}</p>
+                                        <p className="text-[11px] text-white/30 mt-1 leading-snug">{a.desc}</p>
+                                    </motion.div>
+                                ))}
+                            </div>
+                        </section>
+                    </motion.div>
+                )}
             </main>
 
             <DemoNav />

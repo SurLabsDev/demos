@@ -1,19 +1,78 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Bot, Zap, MessageSquare, Activity, Play, Pause, CheckCircle2, AlertCircle, Clock, ArrowRight, Sparkles, Send } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { Bot, Zap, MessageSquare, Activity, CheckCircle2, AlertCircle, ArrowRight, Sparkles, Send } from "lucide-react";
+import { motion } from "framer-motion";
 import DemoNav from "../components/DemoNav";
 
-const workflows = [
-    { id: 1, name: "Lead Qualification Bot", status: "active", processed: 2847, icon: Bot },
-    { id: 2, name: "Invoice Processor", status: "active", processed: 1203, icon: Zap },
-    { id: 3, name: "Support Triage Agent", status: "active", processed: 8741, icon: MessageSquare },
-    { id: 4, name: "Data Enrichment Pipeline", status: "paused", processed: 456, icon: Activity },
-    { id: 5, name: "Email Sentiment Analyzer", status: "active", processed: 3122, icon: Sparkles },
+interface WorkflowNode {
+    label: string;
+    desc: string;
+}
+
+interface Workflow {
+    id: number;
+    name: string;
+    status: "active" | "paused";
+    processed: number;
+    icon: typeof Bot;
+    nodes: WorkflowNode[];
+}
+
+const workflows: Workflow[] = [
+    {
+        id: 1, name: "Lead Qualification Bot", status: "active", processed: 2847, icon: Bot,
+        nodes: [
+            { label: "Trigger", desc: "Formulario web" },
+            { label: "Process", desc: "Scoring con IA" },
+            { label: "Decision", desc: "Frío / tibio / caliente" },
+            { label: "Action", desc: "Alta en CRM + Slack" },
+        ],
+    },
+    {
+        id: 2, name: "Invoice Processor", status: "active", processed: 1203, icon: Zap,
+        nodes: [
+            { label: "Trigger", desc: "Factura por email" },
+            { label: "Process", desc: "OCR + extracción" },
+            { label: "Decision", desc: "Match con orden de compra" },
+            { label: "Action", desc: "Alta en contabilidad" },
+        ],
+    },
+    {
+        id: 3, name: "Support Triage Agent", status: "active", processed: 8741, icon: MessageSquare,
+        nodes: [
+            { label: "Trigger", desc: "Ticket entrante" },
+            { label: "Process", desc: "Clasificación por tema" },
+            { label: "Decision", desc: "Auto-resolver o escalar" },
+            { label: "Action", desc: "Respuesta + asignación" },
+        ],
+    },
+    {
+        id: 4, name: "Data Enrichment Pipeline", status: "paused", processed: 456, icon: Activity,
+        nodes: [
+            { label: "Trigger", desc: "Registro sin datos" },
+            { label: "Process", desc: "Búsqueda en fuentes" },
+            { label: "Decision", desc: "Confianza del match" },
+            { label: "Action", desc: "Actualizar ficha" },
+        ],
+    },
+    {
+        id: 5, name: "Email Sentiment Analyzer", status: "active", processed: 3122, icon: Sparkles,
+        nodes: [
+            { label: "Trigger", desc: "Respuesta de cliente" },
+            { label: "Process", desc: "Análisis de sentimiento" },
+            { label: "Decision", desc: "Riesgo de churn" },
+            { label: "Action", desc: "Aviso a Customer Success" },
+        ],
+    },
 ];
 
-const chatMessages = [
+interface ChatMessage {
+    role: "user" | "ai";
+    text: string;
+}
+
+const chatMessages: ChatMessage[] = [
     { role: "user", text: "¿Cuántos leads calificados tenemos esta semana?" },
     { role: "ai", text: "Esta semana se calificaron 147 leads. 32 fueron marcados como alta prioridad y ya se asignaron al equipo de ventas automáticamente." },
     { role: "user", text: "¿Cuál es el tiempo promedio de respuesta del soporte?" },
@@ -22,62 +81,132 @@ const chatMessages = [
     { role: "ai", text: "Pipeline activado. Comenzando enriquecimiento para 456 registros pendientes. Tiempo estimado: 12 minutos." },
 ];
 
-const workflowNodes = [
-    { label: "Trigger", desc: "Webhook / Email", x: 0 },
-    { label: "Process", desc: "AI Analysis", x: 1 },
-    { label: "Decision", desc: "Route Logic", x: 2 },
-    { label: "Action", desc: "CRM / Slack", x: 3 },
+/**
+ * Respuestas guionadas del asistente. Se elige la primera cuyo keyword aparezca
+ * en la pregunta; si no hay match se usa el fallback. Sin backend: la gracia es
+ * que el visitante escriba y el panel le conteste algo coherente.
+ */
+const scriptedReplies: { keywords: string[]; reply: string }[] = [
+    { keywords: ["lead", "prospecto", "contacto"], reply: "Tenés 147 leads calificados esta semana, 32 de alta prioridad. El bot de calificación los puntúa apenas entran y los asigna solo." },
+    { keywords: ["venta", "factur", "ingreso", "cobr"], reply: "El pipeline de facturación procesó 1.203 documentos este mes con 99,2% de precisión. Se ahorraron unas 40 horas de carga manual." },
+    { keywords: ["soporte", "ticket", "reclamo"], reply: "El agente de triage resolvió el 68% de los tickets sin intervención humana. Primera respuesta promedio: 1,2 segundos." },
+    { keywords: ["client", "churn", "satisfac"], reply: "El análisis de sentimiento marcó 4 cuentas con riesgo de churn esta semana. Customer Success ya recibió el aviso con el historial de cada una." },
+    { keywords: ["automatiz", "workflow", "flujo", "proceso"], reply: "Hay 5 workflows configurados, 4 activos. Entre todos procesaron 16.369 operaciones. La tasa de automatización está en 94%." },
+    { keywords: ["cost", "ahorr", "roi", "precio"], reply: "Las automatizaciones activas equivalen a unas 320 horas de trabajo manual por mes. El retorno se dio en el segundo mes de operación." },
+    { keywords: ["hola", "buenas", "qué tal", "que tal"], reply: "Hola. Puedo consultarte métricas de leads, soporte, facturación o el estado de cualquier workflow. ¿Por dónde arrancamos?" },
 ];
 
-function AnimatedCounter({ target, suffix = "" }: { target: number; suffix?: string }) {
-    const [count, setCount] = useState(0);
-    useEffect(() => {
-        let start = 0;
-        const duration = 2000;
-        const step = target / (duration / 16);
-        const interval = setInterval(() => {
-            start += step;
-            if (start >= target) {
-                setCount(target);
-                clearInterval(interval);
-            } else {
-                setCount(Math.floor(start));
-            }
-        }, 16);
-        return () => clearInterval(interval);
-    }, [target]);
-    return <>{count.toLocaleString()}{suffix}</>;
+const fallbackReply = "Puedo responderte sobre leads, soporte, facturación, riesgo de churn o el estado de los workflows. Probá preguntarme por alguno de esos.";
+
+function replyFor(question: string): string {
+    const q = question.toLowerCase();
+    const match = scriptedReplies.find((r) => r.keywords.some((k) => q.includes(k)));
+    return match ? match.reply : fallbackReply;
 }
 
-export default function AIDashboard() {
-    const [visibleMessages, setVisibleMessages] = useState(0);
-    const [isTyping, setIsTyping] = useState(false);
-    const [selectedWorkflow, setSelectedWorkflow] = useState(1);
-    const chatRef = useRef<HTMLDivElement>(null);
+/**
+ * Cuenta hasta `target` con easing. Interpola en float y formatea al final:
+ * la versión anterior usaba Math.floor y dejaba el 1.2s clavado en "0" durante
+ * los dos segundos de animación.
+ */
+function AnimatedCounter({ target, suffix = "", decimals = 0 }: { target: number; suffix?: string; decimals?: number }) {
+    const [count, setCount] = useState(0);
 
     useEffect(() => {
-        if (visibleMessages >= chatMessages.length) return;
-        const nextIsAI = chatMessages[visibleMessages]?.role === "ai";
-        const delay = nextIsAI ? 1500 : 800;
+        const duration = 2000;
+        let raf = 0;
+        let startTime: number | null = null;
 
-        if (nextIsAI) {
-            setIsTyping(true);
-            const typingTimer = setTimeout(() => {
+        const tick = (now: number) => {
+            if (startTime === null) startTime = now;
+            const t = Math.min((now - startTime) / duration, 1);
+            // easeOutCubic
+            setCount(target * (1 - Math.pow(1 - t, 3)));
+            if (t < 1) raf = requestAnimationFrame(tick);
+        };
+
+        raf = requestAnimationFrame(tick);
+        return () => cancelAnimationFrame(raf);
+    }, [target]);
+
+    const formatted = count.toLocaleString("es-UY", {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
+    });
+
+    return <>{formatted}{suffix}</>;
+}
+
+const suggestedQuestions = [
+    "¿Cómo viene el soporte?",
+    "¿Hay clientes en riesgo?",
+    "¿Cuánto ahorramos este mes?",
+];
+
+export default function AIDashboard() {
+    const [messages, setMessages] = useState<ChatMessage[]>([]);
+    const [isTyping, setIsTyping] = useState(false);
+    const [input, setInput] = useState("");
+    const [userStarted, setUserStarted] = useState(false);
+    const [selectedWorkflow, setSelectedWorkflow] = useState(1);
+    const chatRef = useRef<HTMLDivElement>(null);
+    const replyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const activeWorkflow = workflows.find((w) => w.id === selectedWorkflow) ?? workflows[0];
+
+    /**
+     * Guión de arranque: se reproduce solo para que el panel no se vea muerto.
+     * Todo el guión se agenda de una y cada mensaje aparece desde su timer, así
+     * el efecto nunca llama a setState en su cuerpo. Apenas el visitante escribe,
+     * `userStarted` cambia, la limpieza cancela lo que quedaba y la conversación
+     * pasa a ser suya.
+     */
+    useEffect(() => {
+        if (userStarted) return;
+        let cancelled = false;
+        const timers: ReturnType<typeof setTimeout>[] = [];
+        let elapsed = 0;
+
+        for (const msg of chatMessages) {
+            const isAI = msg.role === "ai";
+            if (isAI) {
+                const showTypingAt = elapsed;
+                timers.push(setTimeout(() => { if (!cancelled) setIsTyping(true); }, showTypingAt));
+            }
+            elapsed += isAI ? 1500 : 800;
+            timers.push(setTimeout(() => {
+                if (cancelled) return;
                 setIsTyping(false);
-                setVisibleMessages((v) => v + 1);
-            }, delay);
-            return () => clearTimeout(typingTimer);
+                setMessages((m) => [...m, msg]);
+            }, elapsed));
         }
 
-        const timer = setTimeout(() => {
-            setVisibleMessages((v) => v + 1);
-        }, delay);
-        return () => clearTimeout(timer);
-    }, [visibleMessages]);
+        return () => {
+            cancelled = true;
+            timers.forEach(clearTimeout);
+        };
+    }, [userStarted]);
 
     useEffect(() => {
         chatRef.current?.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
-    }, [visibleMessages, isTyping]);
+    }, [messages, isTyping]);
+
+    useEffect(() => () => {
+        if (replyTimer.current) clearTimeout(replyTimer.current);
+    }, []);
+
+    const ask = (question: string) => {
+        const clean = question.trim();
+        if (!clean || isTyping) return;
+        setUserStarted(true);
+        setInput("");
+        setMessages((m) => [...m, { role: "user", text: clean }]);
+        setIsTyping(true);
+        replyTimer.current = setTimeout(() => {
+            setIsTyping(false);
+            setMessages((m) => [...m, { role: "ai", text: replyFor(clean) }]);
+        }, 900);
+    };
 
     return (
         <div className="min-h-screen bg-[#07070F] text-white font-sans selection:bg-cyan-500/30">
@@ -145,9 +274,9 @@ export default function AIDashboard() {
                         {/* Metrics Row */}
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             {[
-                                { label: "Mensajes Procesados", value: 12847, suffix: "", color: "cyan" },
-                                { label: "Tiempo Resp. Promedio", value: 1.2, suffix: "s", color: "emerald" },
-                                { label: "Tasa Automatización", value: 94, suffix: "%", color: "purple" },
+                                { label: "Mensajes Procesados", value: 12847, suffix: "", decimals: 0, color: "cyan" },
+                                { label: "Tiempo Resp. Promedio", value: 1.2, suffix: "s", decimals: 1, color: "emerald" },
+                                { label: "Tasa Automatización", value: 94, suffix: "%", decimals: 0, color: "purple" },
                             ].map((m, i) => (
                                 <motion.div
                                     key={i}
@@ -159,7 +288,7 @@ export default function AIDashboard() {
                                     <div className={`absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl -mr-16 -mt-16 opacity-20 ${m.color === "cyan" ? "bg-cyan-500" : m.color === "emerald" ? "bg-emerald-500" : "bg-purple-500"}`} />
                                     <p className="text-xs text-white/40 font-medium uppercase tracking-wider mb-2">{m.label}</p>
                                     <p className="text-3xl font-bold tracking-tight">
-                                        <AnimatedCounter target={m.value} suffix={m.suffix} />
+                                        <AnimatedCounter target={m.value} suffix={m.suffix} decimals={m.decimals} />
                                     </p>
                                 </motion.div>
                             ))}
@@ -180,7 +309,7 @@ export default function AIDashboard() {
                                 </div>
 
                                 <div ref={chatRef} className="flex-1 overflow-y-auto p-5 space-y-4">
-                                    {chatMessages.slice(0, visibleMessages).map((msg, i) => (
+                                    {messages.map((msg, i) => (
                                         <motion.div
                                             key={i}
                                             initial={{ opacity: 0, y: 10 }}
@@ -212,34 +341,67 @@ export default function AIDashboard() {
                                     )}
                                 </div>
 
-                                <div className="p-4 border-t border-white/5">
-                                    <div className="flex items-center gap-3 bg-white/[0.03] border border-white/5 rounded-xl px-4 py-3">
+                                <div className="p-4 border-t border-white/5 space-y-3">
+                                    <div className="flex flex-wrap gap-2">
+                                        {suggestedQuestions.map((q) => (
+                                            <button
+                                                key={q}
+                                                type="button"
+                                                onClick={() => ask(q)}
+                                                disabled={isTyping}
+                                                className="text-[11px] px-3 py-1.5 rounded-full border border-white/10 bg-white/[0.03] text-white/50 hover:text-white/80 hover:border-cyan-500/30 hover:bg-cyan-500/5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                            >
+                                                {q}
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    <form
+                                        onSubmit={(e) => { e.preventDefault(); ask(input); }}
+                                        className="flex items-center gap-3 bg-white/[0.03] border border-white/5 rounded-xl px-4 py-3 focus-within:border-cyan-500/30 transition-colors"
+                                    >
                                         <input
                                             type="text"
+                                            value={input}
+                                            onChange={(e) => setInput(e.target.value)}
                                             placeholder="Preguntá algo a NexusAI..."
+                                            aria-label="Escribí tu consulta"
                                             className="flex-1 bg-transparent text-sm outline-none placeholder:text-white/20 text-white/80"
                                         />
-                                        <button className="p-1.5 rounded-lg bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 transition-colors">
+                                        <button
+                                            type="submit"
+                                            disabled={!input.trim() || isTyping}
+                                            aria-label="Enviar consulta"
+                                            className="p-1.5 rounded-lg bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                        >
                                             <Send size={16} />
                                         </button>
-                                    </div>
+                                    </form>
                                 </div>
                             </div>
 
                             {/* Workflow Builder */}
                             <div className="xl:col-span-2 bg-white/[0.03] border border-white/5 rounded-2xl p-5 flex flex-col">
-                                <div className="flex items-center justify-between mb-6">
-                                    <h3 className="text-sm font-semibold">Workflow Builder</h3>
-                                    <span className="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">Live</span>
+                                <div className="flex items-start justify-between gap-3 mb-6">
+                                    <div className="min-w-0">
+                                        <h3 className="text-sm font-semibold">Workflow Builder</h3>
+                                        <p className="text-[11px] text-white/40 truncate mt-0.5">{activeWorkflow.name}</p>
+                                    </div>
+                                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider shrink-0 border ${activeWorkflow.status === "active"
+                                        ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                                        : "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                                        }`}>
+                                        {activeWorkflow.status === "active" ? "Live" : "En pausa"}
+                                    </span>
                                 </div>
 
                                 <div className="flex-1 flex flex-col justify-center gap-4">
-                                    {workflowNodes.map((node, i) => (
+                                    {activeWorkflow.nodes.map((node, i) => (
                                         <motion.div
-                                            key={i}
+                                            key={`${activeWorkflow.id}-${i}`}
                                             initial={{ opacity: 0, x: -20 }}
                                             animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: 0.5 + i * 0.2 }}
+                                            transition={{ delay: i * 0.08 }}
                                         >
                                             <div className="flex items-center gap-3">
                                                 <div className={`w-10 h-10 rounded-xl border flex items-center justify-center shrink-0 ${i === 0 ? "bg-cyan-500/10 border-cyan-500/30 text-cyan-400"
@@ -255,7 +417,7 @@ export default function AIDashboard() {
                                                 </div>
                                                 <div className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.5)]" />
                                             </div>
-                                            {i < workflowNodes.length - 1 && (
+                                            {i < activeWorkflow.nodes.length - 1 && (
                                                 <div className="ml-5 h-4 w-px bg-gradient-to-b from-white/10 to-transparent" />
                                             )}
                                         </motion.div>
@@ -263,7 +425,9 @@ export default function AIDashboard() {
                                 </div>
 
                                 <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-between">
-                                    <span className="text-xs text-white/30">4 nodos · 3 activos</span>
+                                    <span className="text-xs text-white/30">
+                                        {activeWorkflow.nodes.length} nodos · {activeWorkflow.processed.toLocaleString("es-UY")} procesados
+                                    </span>
                                     <button className="text-xs text-cyan-400 hover:text-cyan-300 font-medium flex items-center gap-1 transition-colors">
                                         Editar flujo <ArrowRight size={12} />
                                     </button>

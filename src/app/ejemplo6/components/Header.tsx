@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, Menu, X } from 'lucide-react';
+import { MAPS_URL } from '../constants';
 import './Header.css';
 
 export default function Header() {
@@ -34,7 +35,7 @@ export default function Header() {
                     </nav>
 
                     <div className="header-actions">
-                        <a href="https://maps.app.goo.gl/YourMapLink" target="_blank" rel="noreferrer" className="store-link">
+                        <a href={MAPS_URL} target="_blank" rel="noreferrer" className="store-link">
                             <MapPin size={18} />
                             <span>Tienda</span>
                         </a>
@@ -56,7 +57,7 @@ export default function Header() {
                     >
                         <a href="#menu" onClick={() => setMobileMenuOpen(false)}>Menú</a>
                         <a href="#club" onClick={() => setMobileMenuOpen(false)}>Club</a>
-                        <a href="https://maps.app.goo.gl/YourMapLink" target="_blank" rel="noreferrer" onClick={() => setMobileMenuOpen(false)}>Tienda</a>
+                        <a href={MAPS_URL} target="_blank" rel="noreferrer" onClick={() => setMobileMenuOpen(false)}>Tienda</a>
                     </motion.div>
                 )}
             </AnimatePresence>

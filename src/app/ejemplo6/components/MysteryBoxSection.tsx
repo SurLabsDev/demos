@@ -1,7 +1,10 @@
-import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import './MysteryBoxSection.css';
 
 export default function MysteryBoxSection() {
+    const [reserved, setReserved] = useState(false);
+
     return (
         <section className="mystery-section section container">
             <div className="mystery-grid">
@@ -19,11 +22,26 @@ export default function MysteryBoxSection() {
                     </p>
                     <motion.button
                         className="mystery-btn"
-                        whileHover={{ scale: 1.05, rotate: -2 }}
-                        whileTap={{ scale: 0.95 }}
+                        onClick={() => setReserved(true)}
+                        disabled={reserved}
+                        whileHover={reserved ? undefined : { scale: 1.05, rotate: -2 }}
+                        whileTap={reserved ? undefined : { scale: 0.95 }}
                     >
-                        QUIERO MI CAJA 🎁
+                        {reserved ? '¡CAJA RESERVADA! 🎉' : 'QUIERO MI CAJA 🎁'}
                     </motion.button>
+
+                    <AnimatePresence>
+                        {reserved && (
+                            <motion.p
+                                initial={{ opacity: 0, y: 8 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0 }}
+                                style={{ marginTop: '1rem', fontWeight: 700 }}
+                            >
+                                Pasá a buscarla por el local y mostrá esta pantalla. Te queda reservada 48 horas.
+                            </motion.p>
+                        )}
+                    </AnimatePresence>
                 </motion.div>
 
                 <motion.div

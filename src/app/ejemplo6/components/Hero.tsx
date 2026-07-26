@@ -3,9 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import './Hero.css';
 
+/** Capturas propias del local, con corte vertical para mobile (sufijo _mb). */
 const slides = [
-    { desktop: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?auto=format&fit=crop&q=80&w=1200', mobile: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?auto=format&fit=crop&q=80&w=600' },
-    { desktop: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&q=80&w=1200', mobile: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&q=80&w=600' },
+    { desktop: '/images/carrusel_1.webp', mobile: '/images/carrusel_1_mb.webp' },
+    { desktop: '/images/carrusel_2.webp', mobile: '/images/carrusel_2_mb.webp' },
 ];
 
 export default function Hero() {

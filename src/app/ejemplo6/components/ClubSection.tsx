@@ -12,7 +12,7 @@ export default function ClubSection() {
                     viewport={{ once: true }}
                     transition={{ duration: 0.6 }}
                 >
-                    <h2 className="title club-title">SÉ PARTE DEL SUR*STUDIO CLUB Y DISFRUTA BENEFICIOS EXCLUSIVOS</h2>
+                    <h2 className="title club-title">SÉ PARTE DEL CHA*HAUS CLUB Y DISFRUTÁ BENEFICIOS EXCLUSIVOS</h2>
                     <p>Escaneame para acceder a los beneficios</p>
                 </motion.div>
 

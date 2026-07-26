@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { ArrowUpRight, Play, Star, Zap, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowUpRight, Star, Zap, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import DemoNav from "../components/DemoNav";
 
@@ -11,53 +11,111 @@ const projects = [
     { id: "03", name: "Oasis Resort", type: "E-Commerce", color: "bg-[#FF9900]", img: "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&q=80&w=800", desc: "Plataforma de reservas y e-commerce para resort boutique. Experiencia de usuario premium con galería inmersiva, motor de reservas y checkout optimizado." },
 ];
 
+const NAV_ITEMS = [
+    { label: "Trabajo", href: "#trabajo" },
+    { label: "Estudio", href: "#estudio" },
+    { label: "Contacto", href: "#contacto" },
+];
+
 export default function CreativeAgencyPage() {
-    const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
     const [isHovering, setIsHovering] = useState(false);
     const [selectedProject, setSelectedProject] = useState<string | null>(null);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const cursorRef = useRef<HTMLDivElement>(null);
 
+    /**
+     * El cursor se mueve escribiendo el transform directo en el nodo. Antes cada
+     * mousemove hacía setState y volvía a renderizar la página entera (las tres
+     * tarjetas, el marquee y el badge) sesenta veces por segundo.
+     * Además queda apagado en touch, donde no hay cursor que seguir.
+     */
     useEffect(() => {
-        const handleMouseMove = (e: MouseEvent) => {
-            setMousePos({ x: e.clientX, y: e.clientY });
+        if (typeof window === "undefined") return;
+        if (!window.matchMedia("(min-width: 768px)").matches) return;
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+        const el = cursorRef.current;
+        if (!el) return;
+
+        let targetX = 0, targetY = 0, x = 0, y = 0;
+        let raf = 0;
+        let started = false;
+
+        const loop = () => {
+            x += (targetX - x) * 0.18;
+            y += (targetY - y) * 0.18;
+            el.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
+            // Cuando ya alcanzó al puntero, el loop se detiene hasta el próximo movimiento.
+            if (Math.abs(targetX - x) < 0.1 && Math.abs(targetY - y) < 0.1) {
+                raf = 0;
+                return;
+            }
+            raf = requestAnimationFrame(loop);
         };
-        window.addEventListener("mousemove", handleMouseMove);
-        return () => window.removeEventListener("mousemove", handleMouseMove);
+
+        const onMove = (e: MouseEvent) => {
+            targetX = e.clientX;
+            targetY = e.clientY;
+            if (!started) {
+                started = true;
+                x = targetX;
+                y = targetY;
+                el.style.opacity = "1";
+            }
+            if (!raf) raf = requestAnimationFrame(loop);
+        };
+
+        window.addEventListener("mousemove", onMove, { passive: true });
+        return () => {
+            window.removeEventListener("mousemove", onMove);
+            if (raf) cancelAnimationFrame(raf);
+        };
     }, []);
 
     const activeProject = projects.find((p) => p.id === selectedProject);
+
+    // Escape cierra la ficha del proyecto y el fondo no scrollea mientras está abierta.
+    useEffect(() => {
+        if (!selectedProject) return;
+        const onKey = (e: KeyboardEvent) => {
+            if (e.key === "Escape") setSelectedProject(null);
+        };
+        const previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+        window.addEventListener("keydown", onKey);
+        return () => {
+            window.removeEventListener("keydown", onKey);
+            document.body.style.overflow = previousOverflow;
+        };
+    }, [selectedProject]);
 
     return (
         <div className="min-h-screen bg-[#E5E5E5] text-black font-sans overflow-x-hidden selection:bg-purple-500 selection:text-white">
 
             {/* Custom Cursor (desktop only) */}
-            <motion.div
-                className="fixed top-0 left-0 pointer-events-none z-[100] mix-blend-difference hidden md:block"
-                animate={{
-                    x: mousePos.x - (isHovering ? 32 : 8),
-                    y: mousePos.y - (isHovering ? 32 : 8),
-                    width: isHovering ? 64 : 16,
-                    height: isHovering ? 64 : 16,
-                }}
-                transition={{ type: "spring", damping: 25, stiffness: 300, mass: 0.5 }}
+            <div
+                ref={cursorRef}
+                aria-hidden="true"
+                style={{ opacity: 0 }}
+                className={`fixed top-0 left-0 pointer-events-none z-[100] mix-blend-difference hidden md:block transition-[width,height] duration-200 ${isHovering ? "w-16 h-16" : "w-4 h-4"}`}
             >
                 <div className={`w-full h-full rounded-full bg-white transition-opacity duration-200 ${isHovering ? 'opacity-80' : 'opacity-60'}`} />
-            </motion.div>
+            </div>
 
             {/* Navigation */}
             <nav className="fixed w-full z-50 p-6 mix-blend-difference text-white">
                 <div className="flex justify-between items-center">
                     <div className="text-2xl font-black tracking-tighter uppercase">SUR*STUDIO</div>
                     <div className="hidden md:flex gap-8 font-bold text-sm tracking-widest uppercase">
-                        {["Trabajo", "Estudio", "Contacto"].map((item) => (
+                        {NAV_ITEMS.map((item) => (
                             <a
-                                key={item}
-                                href="#"
+                                key={item.label}
+                                href={item.href}
                                 className="hover:italic transition-all"
                                 onMouseEnter={() => setIsHovering(true)}
                                 onMouseLeave={() => setIsHovering(false)}
                             >
-                                {item}
+                                {item.label}
                             </a>
                         ))}
                     </div>
@@ -87,17 +145,17 @@ export default function CreativeAgencyPage() {
                             Cerrar
                         </button>
                         <nav className="flex flex-col items-center gap-8">
-                            {["Trabajo", "Estudio", "Contacto"].map((item, i) => (
+                            {NAV_ITEMS.map((item, i) => (
                                 <motion.a
-                                    key={item}
-                                    href="#"
+                                    key={item.label}
+                                    href={item.href}
                                     initial={{ opacity: 0, y: 30 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.2 + i * 0.1 }}
                                     className="text-5xl font-black uppercase tracking-tighter hover:text-purple-500 transition-colors"
                                     onClick={() => setMobileMenuOpen(false)}
                                 >
-                                    {item}
+                                    {item.label}
                                 </motion.a>
                             ))}
                         </nav>
@@ -146,7 +204,7 @@ export default function CreativeAgencyPage() {
             </AnimatePresence>
 
             {/* Hero Section */}
-            <section className="min-h-screen flex flex-col justify-center px-6 relative pt-20">
+            <section id="estudio" className="min-h-screen flex flex-col justify-center px-6 relative pt-20 scroll-mt-20">
                 <div className="max-w-[1400px] mx-auto w-full relative z-10">
                     <h1 className="text-6xl md:text-8xl xl:text-[12vw] leading-[0.85] font-black uppercase tracking-tighter flex flex-col items-start w-full">
                         <span className="flex items-center gap-4 md:gap-8">
@@ -201,7 +259,7 @@ export default function CreativeAgencyPage() {
             </div>
 
             {/* Projects Grid */}
-            <section className="py-32 px-6 max-w-[1400px] mx-auto relative z-10">
+            <section id="trabajo" className="py-32 px-6 max-w-[1400px] mx-auto relative z-10 scroll-mt-20">
                 <h2 className="text-4xl md:text-7xl font-black uppercase tracking-tighter mb-16 border-b-8 border-black pb-4">
                     Trabajo Seleccionado ({projects.length})
                 </h2>
@@ -248,13 +306,15 @@ export default function CreativeAgencyPage() {
             </section>
 
             {/* Footer */}
-            <footer className="bg-black text-white px-6 py-24 flex flex-col items-center justify-center text-center">
-                <h2 className="text-[clamp(3rem,10vw,10rem)] font-black uppercase tracking-tighter leading-none mb-12 hover:text-purple-500 hover:italic transition-all duration-300 cursor-pointer"
+            <footer id="contacto" className="bg-black text-white px-6 py-24 flex flex-col items-center justify-center text-center scroll-mt-20">
+                <a
+                    href="mailto:hola@sur.studio"
+                    className="text-[clamp(3rem,10vw,10rem)] font-black uppercase tracking-tighter leading-none mb-12 hover:text-purple-500 hover:italic transition-all duration-300"
                     onMouseEnter={() => setIsHovering(true)}
                     onMouseLeave={() => setIsHovering(false)}
                 >
                     HABLEMOS.
-                </h2>
+                </a>
 
                 <div className="flex flex-col md:flex-row gap-8 text-sm font-bold uppercase tracking-widest border-t border-gray-800 w-full max-w-[1400px] pt-12 justify-between">
                     <span>&copy; 2026 SUR*STUDIO</span>
@@ -263,7 +323,7 @@ export default function CreativeAgencyPage() {
                         <a href="#" className="hover:text-purple-500">Twitter</a>
                         <a href="#" className="hover:text-purple-500">LinkedIn</a>
                     </div>
-                    <span>hola@sur.studio</span>
+                    <a href="mailto:hola@sur.studio" className="hover:text-purple-500">hola@sur.studio</a>
                 </div>
             </footer>
 

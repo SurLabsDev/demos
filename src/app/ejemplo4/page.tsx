@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Gamepad2, Coins, ChevronRight, Zap, HeartPulse, Sparkles, Check } from "lucide-react";
+import { Gamepad2, Coins, ChevronRight, Zap, HeartPulse, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import DemoNav from "../components/DemoNav";
 
@@ -22,16 +22,31 @@ const menuItems = [
     { id: "S4", name: "LEVEL UP WAFFLES", desc: "Waffles belgas con miel de maple tibia y manteca.", price: "$8.00", category: "SWEET", image: "https://images.unsplash.com/photo-1562376552-0d160a2f9fa4?auto=format&fit=crop&q=80&w=250", power: "EXP +100" }
 ];
 
+/** Los precios se escriben como "$14.50" para mostrarlos; esto los vuelve número. */
+const priceOf = (id: string) => {
+    const item = menuItems.find((i) => i.id === id);
+    return item ? Number(item.price.replace("$", "")) : 0;
+};
+
+const formatUSD = (n: number) => `$${n.toFixed(2)}`;
+
 export default function ArcadeMenu() {
     const [activeCategory, setActiveCategory] = useState("MAIN");
     const [selectedItems, setSelectedItems] = useState<string[]>([]);
     const [orderPlaced, setOrderPlaced] = useState(false);
+
+    // El total es lo que faltaba: se podían marcar platos de tres categorías
+    // distintas sin saber nunca cuánto sumaba el pedido.
+    const total = selectedItems.reduce((sum, id) => sum + priceOf(id), 0);
+    // Se congela al confirmar, porque la selección se limpia mientras el cartel sigue en pantalla.
+    const [confirmedTotal, setConfirmedTotal] = useState(0);
 
     const toggleItem = (id: string) => {
         setSelectedItems((prev) => prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]);
     };
 
     const handleConfirm = () => {
+        setConfirmedTotal(total);
         setOrderPlaced(true);
         setTimeout(() => {
             setOrderPlaced(false);
@@ -73,6 +88,9 @@ export default function ArcadeMenu() {
                                 ORDER PLACED!
                             </div>
                             <p className="text-cyan-400 text-lg animate-pulse tracking-widest">PREPARANDO TU PEDIDO...</p>
+                            <p className="text-yellow-400 text-2xl font-black mt-4 tracking-widest">
+                                TOTAL {formatUSD(confirmedTotal)}
+                            </p>
                             <div className="flex justify-center gap-2 mt-6">
                                 {[...Array(5)].map((_, i) => (
                                     <motion.div
@@ -195,13 +213,50 @@ export default function ArcadeMenu() {
                 </div>
 
                 {/* Action Bottom Bar - Always visible */}
-                <div className="mt-12 flex justify-center sticky bottom-6 z-40">
+                <div className="mt-12 flex flex-col items-center gap-3 sticky bottom-6 z-40">
+                    {/* Resumen del pedido: los ítems marcados pueden estar en otra
+                        categoría, así que hay que poder verlos sin cambiar de pestaña. */}
+                    <AnimatePresence>
+                        {selectedItems.length > 0 && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: 10 }}
+                                className="bg-black/85 backdrop-blur-sm border-2 border-cyan-500/60 px-4 py-3 max-w-lg w-full shadow-[0_0_20px_rgba(0,255,255,0.25)]"
+                            >
+                                <div className="space-y-1 max-h-28 overflow-y-auto">
+                                    {selectedItems.map((id) => {
+                                        const item = menuItems.find((i) => i.id === id);
+                                        if (!item) return null;
+                                        return (
+                                            <div key={id} className="flex items-center gap-2 text-xs">
+                                                <button
+                                                    onClick={() => toggleItem(id)}
+                                                    aria-label={`Quitar ${item.name}`}
+                                                    className="text-fuchsia-400 hover:text-fuchsia-200 font-bold shrink-0"
+                                                >
+                                                    ×
+                                                </button>
+                                                <span className="text-white truncate">{item.name}</span>
+                                                <span className="ml-auto text-cyan-400 shrink-0">{item.price}</span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                                <div className="flex items-center justify-between border-t-2 border-cyan-900 mt-2 pt-2">
+                                    <span className="text-yellow-400 font-bold text-sm tracking-widest">TOTAL</span>
+                                    <span className="text-yellow-400 font-black text-xl">{formatUSD(total)}</span>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
                     <motion.button
                         animate={selectedItems.length > 0 ? { scale: [1, 1.03, 1] } : {}}
                         transition={{ repeat: Infinity, duration: 1.5 }}
                         disabled={selectedItems.length === 0}
                         onClick={handleConfirm}
-                        className={`group relative flex items-center gap-4 px-8 py-4 font-black tracking-widest text-lg md:text-xl uppercase transition-all duration-200
+                        className={`group relative flex items-center gap-3 px-6 md:px-8 py-4 font-black tracking-widest text-base md:text-xl uppercase transition-all duration-200
                 ${selectedItems.length > 0
                                 ? 'bg-yellow-400 text-black border-4 border-white shadow-[0_0_20px_#ff0,inset_0_0_10px_#fff] cursor-pointer hover:bg-white hover:border-yellow-400 hover:text-yellow-600'
                                 : 'bg-gray-800/80 text-gray-500 border-4 border-gray-600 cursor-not-allowed'
@@ -210,9 +265,12 @@ export default function ArcadeMenu() {
                         <Zap size={24} className={selectedItems.length > 0 ? "animate-pulse" : "opacity-50"} />
                         {selectedItems.length > 0 ? (
                             <>
-                                CONFIRM ORDER
+                                CONFIRM
                                 <span className="bg-black text-yellow-400 px-2 py-0.5 text-sm rounded-sm">
                                     x{selectedItems.length}
+                                </span>
+                                <span className="bg-black text-yellow-400 px-2 py-0.5 text-sm rounded-sm">
+                                    {formatUSD(total)}
                                 </span>
                                 <ChevronRight size={24} className="group-hover:translate-x-2 transition-transform" />
                             </>

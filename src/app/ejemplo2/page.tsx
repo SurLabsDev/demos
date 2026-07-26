@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { ShoppingBag, Search, Menu, ArrowRight, Heart, X, Plus, Minus, Check } from "lucide-react";
+import { useState, useMemo } from "react";
+import { ShoppingBag, Search, Menu, ArrowRight, Heart, X, Plus, Minus, Check, SearchX } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import DemoNav from "../components/DemoNav";
 
@@ -26,12 +26,22 @@ interface CartItem {
     qty: number;
 }
 
+const normalize = (s: string) =>
+    s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
 export default function EcommercePage() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [cartOpen, setCartOpen] = useState(false);
     const [cart, setCart] = useState<CartItem[]>([]);
     const [newsletterDone, setNewsletterDone] = useState(false);
     const [favorites, setFavorites] = useState<number[]>([]);
+    const [searchOpen, setSearchOpen] = useState(false);
+    const [query, setQuery] = useState("");
+    const [orderPlaced, setOrderPlaced] = useState(false);
+
+    const scrollToProducts = () => {
+        document.getElementById("coleccion")?.scrollIntoView({ behavior: "smooth" });
+    };
 
     const addToCart = (product: Product) => {
         setCart((prev) => {
@@ -60,6 +70,17 @@ export default function EcommercePage() {
         setFavorites((prev) => prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]);
     };
 
+    const visibleProducts = useMemo(() => {
+        const q = normalize(query.trim());
+        if (!q) return products;
+        return products.filter((p) => normalize(p.name).includes(q) || normalize(p.category).includes(q));
+    }, [query]);
+
+    const checkout = () => {
+        setOrderPlaced(true);
+        setCart([]);
+    };
+
     return (
         <div className="min-h-screen bg-[#FAFAFA] text-[#111111] font-sans selection:bg-[#111111] selection:text-[#FAFAFA]">
             {/* Announcement Bar */}
@@ -85,9 +106,31 @@ export default function EcommercePage() {
                     </a>
 
                     <div className="flex items-center gap-5">
-                        <button className="hover:opacity-60 transition-opacity"><Search size={20} className="stroke-[1.5]" /></button>
-                        <button className="hover:opacity-60 transition-opacity hidden sm:block" onClick={() => toggleFavorite(0)}>
-                            <Heart size={20} className="stroke-[1.5]" />
+                        <button
+                            className="hover:opacity-60 transition-opacity"
+                            aria-label="Buscar productos"
+                            aria-expanded={searchOpen}
+                            onClick={() => { setSearchOpen((o) => !o); if (searchOpen) setQuery(""); }}
+                        >
+                            {searchOpen ? <X size={20} className="stroke-[1.5]" /> : <Search size={20} className="stroke-[1.5]" />}
+                        </button>
+                        {/* Antes este botón llamaba a toggleFavorite(0) y el id 0 no existe:
+                            marcaba un producto fantasma. Ahora informa cuántos hay guardados. */}
+                        <button
+                            className="hover:opacity-60 transition-opacity hidden sm:block relative"
+                            aria-label={`Favoritos (${favorites.length})`}
+                            onClick={scrollToProducts}
+                        >
+                            <Heart size={20} className={favorites.length > 0 ? "fill-[#111111] stroke-[1.5]" : "stroke-[1.5]"} />
+                            {favorites.length > 0 && (
+                                <motion.span
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    className="absolute -top-1 -right-2 bg-[#111111] text-[#FAFAFA] text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-medium"
+                                >
+                                    {favorites.length}
+                                </motion.span>
+                            )}
                         </button>
                         <button className="hover:opacity-60 transition-opacity relative" onClick={() => setCartOpen(true)}>
                             <ShoppingBag size={20} className="stroke-[1.5]" />
@@ -103,6 +146,37 @@ export default function EcommercePage() {
                         </button>
                     </div>
                 </div>
+
+                {/* Barra de búsqueda desplegable */}
+                <AnimatePresence>
+                    {searchOpen && (
+                        <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.25 }}
+                            className="overflow-hidden border-t border-[#E5E5E5]"
+                        >
+                            <div className="max-w-7xl mx-auto px-6 py-4 flex items-center gap-3">
+                                <Search size={18} className="stroke-[1.5] text-gray-400 shrink-0" />
+                                <input
+                                    autoFocus
+                                    type="text"
+                                    value={query}
+                                    onChange={(e) => setQuery(e.target.value)}
+                                    placeholder="Buscar por pieza o categoría..."
+                                    aria-label="Buscar por pieza o categoría"
+                                    className="flex-1 bg-transparent text-sm tracking-wide outline-none placeholder:text-gray-400"
+                                />
+                                {query && (
+                                    <button onClick={() => setQuery("")} aria-label="Limpiar búsqueda" className="text-gray-400 hover:text-[#111111] transition-colors">
+                                        <X size={16} />
+                                    </button>
+                                )}
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </nav>
 
             {/* Mobile Menu */}
@@ -160,11 +234,41 @@ export default function EcommercePage() {
                                 <button onClick={() => setCartOpen(false)}><X size={20} /></button>
                             </div>
 
-                            {cart.length === 0 ? (
+                            {orderPlaced ? (
+                                <div className="flex-1 flex flex-col items-center justify-center px-8 text-center">
+                                    <motion.div
+                                        initial={{ scale: 0 }}
+                                        animate={{ scale: 1 }}
+                                        transition={{ type: "spring", damping: 13 }}
+                                        className="w-16 h-16 rounded-full bg-[#111111] text-[#FAFAFA] flex items-center justify-center mb-6"
+                                    >
+                                        <Check size={28} />
+                                    </motion.div>
+                                    <h3 className="font-serif text-xl tracking-widest mb-3">COMPRA CONFIRMADA</h3>
+                                    <p className="text-sm text-gray-500 leading-relaxed mb-1">
+                                        Pedido #AE-{String(2600 + favorites.length + cart.length).padStart(4, "0")}
+                                    </p>
+                                    <p className="text-xs text-gray-400 leading-relaxed mb-8">
+                                        Te enviamos el seguimiento por correo. Envío de cortesía, llega en 3 a 5 días hábiles.
+                                    </p>
+                                    <button
+                                        onClick={() => { setOrderPlaced(false); setCartOpen(false); }}
+                                        className="w-full border border-[#111111] py-4 text-xs uppercase tracking-widest font-medium hover:bg-[#111111] hover:text-[#FAFAFA] transition-colors"
+                                    >
+                                        Seguir explorando
+                                    </button>
+                                </div>
+                            ) : cart.length === 0 ? (
                                 <div className="flex-1 flex flex-col items-center justify-center text-gray-400 px-6 text-center">
                                     <ShoppingBag size={48} className="stroke-[1] mb-4 opacity-50" />
                                     <p className="text-sm">Tu bolso está vacío.</p>
                                     <p className="text-xs mt-1">Explora nuestra colección curada.</p>
+                                    <button
+                                        onClick={() => { setCartOpen(false); scrollToProducts(); }}
+                                        className="mt-6 text-xs uppercase tracking-widest font-medium border-b border-[#111111] text-[#111111] pb-1"
+                                    >
+                                        Ver la colección
+                                    </button>
                                 </div>
                             ) : (
                                 <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
@@ -195,13 +299,24 @@ export default function EcommercePage() {
                                 </div>
                             )}
 
-                            {cart.length > 0 && (
-                                <div className="border-t border-[#E5E5E5] px-6 py-6 space-y-4">
+                            {cart.length > 0 && !orderPlaced && (
+                                /* pb extra en mobile: el pill de navegación de las demos flota
+                                   sobre el borde inferior y tapaba el botón de compra. */
+                                <div className="border-t border-[#E5E5E5] px-6 py-6 pb-24 sm:pb-6 space-y-4">
+                                    <div className="flex justify-between text-xs text-gray-500">
+                                        <span className="uppercase tracking-widest">Envío</span>
+                                        <span>{totalPrice >= 500 ? "De cortesía" : "$25"}</span>
+                                    </div>
                                     <div className="flex justify-between text-sm">
                                         <span className="text-gray-500 uppercase tracking-widest text-xs">Total</span>
-                                        <span className="font-bold text-lg">${totalPrice.toLocaleString()}</span>
+                                        <span className="font-bold text-lg">
+                                            ${(totalPrice >= 500 ? totalPrice : totalPrice + 25).toLocaleString()}
+                                        </span>
                                     </div>
-                                    <button className="w-full bg-[#111111] text-[#FAFAFA] py-4 text-sm uppercase tracking-widest font-medium hover:bg-gray-800 transition-colors flex items-center justify-center gap-2">
+                                    <button
+                                        onClick={checkout}
+                                        className="w-full bg-[#111111] text-[#FAFAFA] py-4 text-sm uppercase tracking-widest font-medium hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
+                                    >
                                         Finalizar Compra <ArrowRight size={14} />
                                     </button>
                                 </div>
@@ -232,7 +347,10 @@ export default function EcommercePage() {
                             Elaborada con precisión milimétrica, nuestra más reciente colección desafía los límites entre la utilidad cotidiana y el arte escultural. Unidades limitadas disponibles.
                         </p>
                         <div>
-                            <button className="group inline-flex items-center justify-center gap-4 bg-[#111111] text-[#FAFAFA] hover:bg-gray-800 transition-colors text-sm tracking-widest uppercase font-medium px-8 py-4">
+                            <button
+                                onClick={scrollToProducts}
+                                className="group inline-flex items-center justify-center gap-4 bg-[#111111] text-[#FAFAFA] hover:bg-gray-800 transition-colors text-sm tracking-widest uppercase font-medium px-8 py-4"
+                            >
                                 Comprar Colección
                                 <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                             </button>
@@ -241,17 +359,32 @@ export default function EcommercePage() {
                 </section>
 
                 {/* Curated Selection */}
-                <section className="py-20 md:py-32 px-6 max-w-7xl mx-auto">
+                <section id="coleccion" className="py-20 md:py-32 px-6 max-w-7xl mx-auto scroll-mt-24">
                     <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
                         <div>
                             <h2 className="text-3xl font-serif mb-4">Selección Curada</h2>
                             <p className="text-gray-500 text-sm max-w-sm">Eleva tu día a día con piezas atemporales diseñadas para perdurar más allá de cualquier temporada.</p>
                         </div>
-                        <a href="#" className="inline-block text-xs uppercase tracking-widest font-medium border-b border-[#111111] pb-1">Ver Catálogo</a>
+                        <button
+                            onClick={() => { setSearchOpen(true); setQuery(""); }}
+                            className="self-start inline-block text-xs uppercase tracking-widest font-medium border-b border-[#111111] pb-1"
+                        >
+                            Ver Catálogo
+                        </button>
                     </div>
 
+                    {visibleProducts.length === 0 && (
+                        <div className="py-16 text-center">
+                            <SearchX size={32} className="text-gray-300 mx-auto mb-4 stroke-[1.5]" />
+                            <p className="text-sm text-gray-500 mb-4">No encontramos piezas para &ldquo;{query}&rdquo;.</p>
+                            <button onClick={() => setQuery("")} className="text-xs uppercase tracking-widest font-medium border-b border-[#111111] pb-1">
+                                Ver todo
+                            </button>
+                        </div>
+                    )}
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16">
-                        {products.map((product) => (
+                        {visibleProducts.map((product) => (
                             <motion.div
                                 key={product.id}
                                 className="group cursor-pointer"
@@ -266,16 +399,20 @@ export default function EcommercePage() {
                                     />
                                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500" />
 
-                                    {/* Favorite button */}
+                                    {/* Favorite button. En touch no existe el hover, así que
+                                        de md para abajo estos controles quedan siempre visibles. */}
                                     <button
-                                        className="absolute top-3 right-3 p-2 bg-white/80 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-white"
+                                        aria-label={favorites.includes(product.id) ? `Quitar ${product.name} de favoritos` : `Guardar ${product.name} en favoritos`}
+                                        aria-pressed={favorites.includes(product.id)}
+                                        className={`absolute top-3 right-3 p-2 bg-white/80 backdrop-blur-sm rounded-full transition-opacity duration-300 hover:bg-white md:group-hover:opacity-100 ${favorites.includes(product.id) ? "opacity-100" : "opacity-100 md:opacity-0"
+                                            }`}
                                         onClick={(e) => { e.stopPropagation(); toggleFavorite(product.id); }}
                                     >
                                         <Heart size={16} className={favorites.includes(product.id) ? "fill-red-500 text-red-500" : "stroke-[1.5]"} />
                                     </button>
 
                                     <button
-                                        className="absolute bottom-4 left-1/2 -translate-x-1/2 translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 bg-[#111111] text-[#FAFAFA] text-xs uppercase tracking-widest py-3 px-6 whitespace-nowrap hover:bg-gray-800"
+                                        className="absolute bottom-4 left-1/2 -translate-x-1/2 transition-all duration-500 bg-[#111111] text-[#FAFAFA] text-xs uppercase tracking-widest py-3 px-6 whitespace-nowrap hover:bg-gray-800 md:translate-y-8 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100"
                                         onClick={() => addToCart(product)}
                                     >
                                         Añadir al Bolso
