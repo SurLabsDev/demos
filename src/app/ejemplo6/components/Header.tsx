@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, Menu, X } from 'lucide-react';
-import { MAPS_URL } from '../constants';
+import { BRAND, MAPS_URL } from '../constants';
 import './Header.css';
 
 export default function Header() {
@@ -26,7 +26,7 @@ export default function Header() {
             >
                 <div className="header-container">
                     <div className="logo-container">
-                        <span className="brand-name" style={{ fontSize: '1.5rem', fontWeight: 900, fontStyle: 'italic', letterSpacing: '0.1em' }}>CHA*HAUS</span>
+                        <span className="brand-name" style={{ fontSize: '1.5rem', fontWeight: 900, fontStyle: 'italic', letterSpacing: '0.1em' }}>{BRAND}</span>
                     </div>
 
                     <nav className="desktop-nav">

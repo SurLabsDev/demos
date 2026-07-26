@@ -3,10 +3,24 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import './Hero.css';
 
-/** Capturas propias del local, con corte vertical para mobile (sufijo _mb). */
+/**
+ * Fotos de stock, a propósito. Acá había capturas de un local real con su logo
+ * impreso en los vasos: una demo pública no puede mostrar la identidad de una
+ * marca ajena. Están elegidas una por una con vasos sin marca, porque buena
+ * parte del stock de bubble tea está fotografiado en locales reales.
+ *
+ * Se pide h además de w: el contenedor es apaisado (object-fit: cover) y sin
+ * forzar el alto Unsplash devuelve el original vertical y se recorta feo.
+ */
 const slides = [
-    { desktop: '/images/carrusel_1.webp', mobile: '/images/carrusel_1_mb.webp' },
-    { desktop: '/images/carrusel_2.webp', mobile: '/images/carrusel_2_mb.webp' },
+    {
+        desktop: 'https://images.unsplash.com/photo-1745883949374-baeba0ed57c3?auto=format&fit=crop&q=80&w=1600&h=900',
+        mobile: 'https://images.unsplash.com/photo-1745883949374-baeba0ed57c3?auto=format&fit=crop&q=80&w=800&h=600',
+    },
+    {
+        desktop: 'https://images.unsplash.com/photo-1558857563-b371033873b8?auto=format&fit=crop&q=80&w=1600&h=900',
+        mobile: 'https://images.unsplash.com/photo-1558857563-b371033873b8?auto=format&fit=crop&q=80&w=800&h=600',
+    },
 ];
 
 export default function Hero() {
@@ -52,7 +66,7 @@ export default function Hero() {
                     <motion.img
                         key={current}
                         src={isMobile ? slides[current].mobile : slides[current].desktop}
-                        alt="Cha Haus Hero"
+                        alt="Bebidas de la casa"
                         className="carousel-image"
                         initial={{ opacity: 0, scale: 0.8, rotate: -5, y: 100 }}
                         animate={{ opacity: 1, scale: 1, rotate: 0, y: 0 }}

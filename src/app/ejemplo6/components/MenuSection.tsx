@@ -2,17 +2,19 @@ import { motion } from 'framer-motion';
 import './MenuSection.css';
 
 /**
- * Las fotos de producto viven en public/images y su nombre coincide con el del
- * ítem. Antes se servía stock de Unsplash (con la 1 y la 4 repetidas), lo que
- * además metía seis pedidos a un dominio externo en cada carga.
+ * Carta de utilería. Ni los nombres ni las fotos son de un local real: antes
+ * esto servía las fotos de producto de una marca existente, con su logo impreso
+ * en cada vaso. Cada imagen se revisó a ojo para descartar vasos con logo, que
+ * abundan en el stock de bubble tea, y las seis son distintas entre sí (la
+ * versión original repetía la misma foto en dos tragos).
  */
 const menuItems = [
-    { id: 1, name: 'Maracuya Hibiscus', desc: 'Te verde de jazmin con maracuya y flor de hibisco', image: '/images/Maracuya_Hibiscus.webp', color: '#FCD34D' },
-    { id: 2, name: 'Pink Lychee', desc: 'Te oolong con lychee, toques de rosa y cold foam', image: '/images/Pink_Lychee.webp', color: '#A0D2A1' },
-    { id: 3, name: 'Durazno Oolong', desc: 'Te oolong efervescente con durazno', image: '/images/Durazno_Oolong.webp', color: '#FCA5A5' },
-    { id: 4, name: 'Purple Lemonade', desc: 'Limonada con te de flor de clitoria', image: '/images/Purple_Lemonade.webp', color: '#FBBF24' },
-    { id: 5, name: 'Cloud Coco', desc: 'Te de flor de clitoria con agua de coco y cold foam azul', image: '/images/Cloud_Coco.webp', color: '#38BDF8' },
-    { id: 6, name: 'Crisantemo Zen', desc: 'Te verde de jazmin con limon, chia, crisantemo y bayas de goji', image: '/images/Crisantemo_Zen.webp', color: '#FCA5A5' },
+    { id: 1, name: 'Mango Jazmín', desc: 'Té verde de jazmín con mango y perlas de tapioca', image: 'https://images.unsplash.com/photo-1718065598477-505b9c2e764d?auto=format&fit=crop&q=80&w=400', color: '#FCD34D' },
+    { id: 2, name: 'Cacao Nube', desc: 'Té con leche, cacao y cold foam', image: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&q=80&w=400', color: '#A0D2A1' },
+    { id: 3, name: 'Pera Oolong', desc: 'Té oolong efervescente con pera y jengibre', image: 'https://images.unsplash.com/photo-1560023907-5f339617ea30?auto=format&fit=crop&q=80&w=400', color: '#FCA5A5' },
+    { id: 4, name: 'Menta Limón', desc: 'Té verde frío con menta, lima y mucho hielo', image: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&q=80&w=400', color: '#FBBF24' },
+    { id: 5, name: 'Leche Perlada', desc: 'Té con leche clásico y perlas de tapioca', image: 'https://images.unsplash.com/photo-1525803377221-4f6ccdaa5133?auto=format&fit=crop&q=80&w=400', color: '#38BDF8' },
+    { id: 6, name: 'Matcha Frío', desc: 'Matcha helado con perlas y un toque de vainilla', image: 'https://images.unsplash.com/photo-1572932759882-bb34c848d1b3?auto=format&fit=crop&q=80&w=400', color: '#FCA5A5' },
 ];
 
 export default function MenuSection() {

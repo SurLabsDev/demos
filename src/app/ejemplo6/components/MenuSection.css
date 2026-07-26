@@ -38,11 +38,15 @@
     background-color: var(--white);
 }
 
+/*
+ * cover, no contain: antes acá iban recortes de producto sobre fondo blanco y
+ * el contain + padding los hacía ver como una ficha de catálogo. Con fotos que
+ * traen su propio fondo, contain deja bandas blancas en las apaisadas.
+ */
 .ejemplo6-wrapper .menu-image {
-    width: 110%;
-    height: 110%;
-    object-fit: contain;
-    padding: 1rem;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
     z-index: 1;
 }
 
