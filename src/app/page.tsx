@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { MAIN_SITE } from "@/lib/seo";
 import { Briefcase, ShoppingBag, Palette, Gamepad2, CalendarCheck, Coffee, Bot, Building2, Rocket, Heart, GraduationCap, Utensils } from "lucide-react";
 
 export default function Home() {
@@ -88,11 +89,17 @@ export default function Home() {
           <div className="inline-block px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-bold tracking-widest uppercase mb-2">
             Showcase
           </div>
+          {/*
+            El h1 llevaba solo "Demos SurLabs", que no le dice nada a nadie que
+            no sepa ya quiénes somos. Ahora nombra lo que la página realmente
+            es, que además es lo que se busca.
+          */}
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-50">
-            Demos SurLabs
+            Doce productos funcionando
           </h1>
           <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 max-w-xl mx-auto">
-            Selecciona uno de los prototipos interactivos para visualizar nuestras opciones de diseño y arquitectura.
+            Uno por rubro, todos abiertos y sin registro. Entrá al que se parezca a
+            lo tuyo y usalo como si fuera tuyo: no son capturas de pantalla.
           </p>
         </div>
 
@@ -126,6 +133,26 @@ export default function Home() {
               </div>
             </Link>
           ))}
+        </div>
+
+        {/*
+          Cierre con el enlace al sitio principal. Es la única salida que tenía
+          esta página hacia quien construyó todo esto, y hasta ahora no estaba.
+          Sirve al visitante convencido y ata los dos dominios para los
+          buscadores.
+        */}
+        <div className="relative z-10 mt-2 border-t border-zinc-200 dark:border-zinc-800 pt-8 text-center">
+          <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400 max-w-xl mx-auto">
+            Las construye{" "}
+            <a
+              href={`${MAIN_SITE}/?utm_source=demos`}
+              className="font-semibold text-zinc-900 dark:text-zinc-50 underline underline-offset-4 decoration-blue-500/60 hover:decoration-blue-500"
+            >
+              Surlabs
+            </a>
+            , desarrollo de software a medida en Montevideo, Uruguay. Si alguna se
+            parece a lo que necesitás, se puede adaptar a tu negocio.
+          </p>
         </div>
       </main>
     </div>

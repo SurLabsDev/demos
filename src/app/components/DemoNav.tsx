@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { Home, ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from "lucide-react";
+import { MAIN_SITE } from "@/lib/seo";
 
 const demos = [
   { href: "/ejemplo1", title: "CRM Dashboard" },
@@ -96,6 +97,28 @@ export default function DemoNav() {
       )}
 
       <div className="w-px h-5 bg-white/10 mx-1" />
+
+      {/*
+        Enlace al sitio principal. Antes no había ninguno en todo el subdominio:
+        las doce demos eran una isla sin salida. Cuesta dos cosas distintas.
+
+        Para el visitante: está mirando el producto, convencido, y no tenía cómo
+        llegar a quien lo hizo sin volver atrás en el navegador.
+
+        Para los buscadores: un subdominio no hereda la identidad del dominio
+        principal. Trece páginas enlazando a surlabs.tech son la señal que ata
+        los dos dominios como una sola empresa.
+
+        Sin rel="nofollow" a propósito, y sin target en blanco: es tráfico
+        propio yendo a casa, no un enlace externo.
+      */}
+      <a
+        href={`${MAIN_SITE}/?utm_source=demos`}
+        className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 transition-colors text-white/90 hover:text-white text-xs sm:text-sm font-medium whitespace-nowrap"
+        title="Ir a Surlabs"
+      >
+        Lo quiero
+      </a>
 
       <button
         onClick={() => setCollapsed(true)}
